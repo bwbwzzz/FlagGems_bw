@@ -348,6 +348,7 @@ from flag_gems.ops.softshrink import softshrink, softshrink_out
 from flag_gems.ops.sort import sort, sort_stable
 from flag_gems.ops.special_i0e import special_i0e, special_i0e_out
 from flag_gems.ops.special_i1 import special_i1, special_i1_out
+from flag_gems.ops.special_psi import special_psi
 from flag_gems.ops.sqrt import sqrt, sqrt_
 from flag_gems.ops.square import square, square_, square_out
 from flag_gems.ops.stack import stack
@@ -380,6 +381,7 @@ from flag_gems.ops.var import var, var_correction, var_dim
 from flag_gems.ops.var_mean import var_mean
 from flag_gems.ops.vdot import vdot
 from flag_gems.ops.vector_norm import vector_norm
+from flag_gems.ops.view_copy import view_copy
 from flag_gems.ops.vstack import vstack
 from flag_gems.ops.w8a8_block_fp8_matmul import w8a8_block_fp8_matmul
 from flag_gems.ops.weightnorm import (
@@ -837,6 +839,7 @@ __all__ = [
     "special_i0e_out",
     "special_i1",
     "special_i1_out",
+    "special_psi",
     "sqrt",
     "sqrt_",
     "square",
@@ -887,6 +890,7 @@ __all__ = [
     "var_mean",
     "vdot",
     "vector_norm",
+    "view_copy",
     "vstack",
     "w8a8_block_fp8_matmul",
     "weight_norm_interface",
