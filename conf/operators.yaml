@@ -5882,6 +5882,17 @@ ops:
       - Math
     stages:
       - beta: '5.0'
+  - id: special_modified_bessel_i1
+    description: Modified Bessel function of the first kind of order 1.
+    for:
+      - special_modified_bessel_i1
+    labels:
+      - aten
+      - KernelGen
+    kind:
+      - Math
+    stages:
+      - alpha: '5.1'
   - id: sqrt
     description: Returns a new tensor with the square-root of the elements of `input`.
     for:
