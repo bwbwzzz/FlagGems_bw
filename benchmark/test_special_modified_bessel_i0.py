@@ -16,9 +16,12 @@ def test_special_modified_bessel_i0():
 
 @pytest.mark.special_modified_bessel_i0_out
 def test_special_modified_bessel_i0_out():
+    # PyTorch's modified_bessel_i0 on CUDA only supports float32 with out=,
+    # so restrict benchmark dtypes accordingly
+    _dtypes = [torch.float32]
     bench = base.UnaryPointwiseOutBenchmark(
         op_name="special_modified_bessel_i0_out",
         torch_op=torch.special.modified_bessel_i0,
-        dtypes=consts.FLOAT_DTYPES,
+        dtypes=_dtypes,
     )
     bench.run()
