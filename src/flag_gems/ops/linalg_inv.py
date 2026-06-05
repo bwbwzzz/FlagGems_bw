@@ -124,7 +124,7 @@ def linalg_inv(A: torch.Tensor) -> torch.Tensor:
     Returns:
         Inverse tensor of shape (*, n, n)
     """
-    logger.debug("GEMS linalg_inv")
+    logger.debug("GEMS LINALG_INV")
 
     assert A.dtype in (
         torch.float32,
