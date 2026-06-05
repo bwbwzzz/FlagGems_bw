@@ -183,7 +183,7 @@ def linalg_inv_(A: torch.Tensor) -> torch.Tensor:
     """
     In-place version of linalg_inv
     """
-    logger.debug("GEMS linalg_inv_")
+    logger.debug("GEMS LINALG_INV_")
     result = linalg_inv(A)
     A.copy_(result)
     return A
