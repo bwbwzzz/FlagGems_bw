@@ -7,7 +7,7 @@ from . import accuracy_utils as utils
 
 
 @pytest.mark.special_i0
-@pytest.mark.parametrize("shape", [(2, 3), (128, 256), (512, 512)])
+@pytest.mark.parametrize("shape", utils.SPECIAL_SHAPES)
 @pytest.mark.parametrize("dtype", utils.FLOAT_DTYPES)
 def test_special_i0(shape, dtype):
     x = torch.randn(shape, dtype=dtype, device=flag_gems.device)
@@ -22,7 +22,7 @@ def test_special_i0(shape, dtype):
 
 
 @pytest.mark.special_i0_out
-@pytest.mark.parametrize("shape", [(2, 3), (128, 256), (512, 512)])
+@pytest.mark.parametrize("shape", utils.SPECIAL_SHAPES)
 @pytest.mark.parametrize("dtype", utils.FLOAT_DTYPES)
 def test_special_i0_out(shape, dtype):
     x = torch.randn(shape, dtype=dtype, device=flag_gems.device)
