@@ -4151,6 +4151,30 @@ ops:
       - Math
     stages:
       - stable: '2.1'
+  - id: mish
+    description: |
+      Applies the mish activation function element-wise.
+      mish(x) = x * tanh(softplus(x)) = x * tanh(ln(1 + exp(x)))
+    for:
+      - mish
+    labels:
+      - aten
+      - KernelGen
+    kind:
+      - Math
+    stages:
+      - alpha: '5.3'
+  - id: mish_
+    description: The in-place version of `mish()`.
+    for:
+      - mish_
+    labels:
+      - aten
+      - KernelGen
+    kind:
+      - Math
+    stages:
+      - alpha: '5.3'
   - id: mm
     description: Performs a matrix multiplication of the two input matrices.
     for:
