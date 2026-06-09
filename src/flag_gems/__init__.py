@@ -374,6 +374,7 @@ _FULL_CONFIG = (
     ("min", min),
     ("min.dim", min_dim),
     ("minimum", minimum),
+    ("miopen_batch_norm", miopen_batch_norm),
     ("mm", mm),
     ("mm.out", mm_out),
     ("mse_loss", mse_loss),
