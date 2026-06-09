@@ -3623,6 +3623,30 @@ ops:
       - Math
     stages:
       - beta: '5.0'
+  - id: log2
+    description: Returns a new tensor with the logarithm to the base 2 of the elements of `input`.
+    for:
+      - log2
+    labels:
+      - aten
+      - pointwise
+      - KernelGen
+    kind:
+      - Math
+    stages:
+      - alpha: '5.3'
+  - id: log2_
+    description: The in-place version of `log2()`.
+    for:
+      - log2_
+    labels:
+      - aten
+      - pointwise
+      - KernelGen
+    kind:
+      - Math
+    stages:
+      - alpha: '5.3'
   - id: log_sigmoid
     description: Applies the Logsigmoid function element-wise.
     for:
