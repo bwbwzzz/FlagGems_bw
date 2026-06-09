@@ -13,6 +13,7 @@ def test_acosh():
     )
     bench.run()
 
+
 @pytest.mark.acosh_
 def test_acosh_():
     bench = base.UnaryPointwiseBenchmark(
