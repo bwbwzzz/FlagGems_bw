@@ -69,7 +69,7 @@ ops:
     kind:
       - Math
     stages:
-      - alpha: '5.1'
+      - alpha: '5.3'
   - id: act_quant_triton
     description: This is a fused operator.
     for:
