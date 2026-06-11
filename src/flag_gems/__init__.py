@@ -118,6 +118,7 @@ _FULL_CONFIG = (
     ("argmax", argmax),
     ("argmin", argmin),
     ("argsort", argsort),
+    ("as_strided_", as_strided_),
     ("as_strided_copy", as_strided_copy),
     ("as_strided_copy.out", as_strided_copy_out),
     ("asinh", asinh),
