@@ -22,14 +22,10 @@ def test_as_strided_():
                 continue
             yield inp, size, stride
 
-    def torch_as_strided_(inp, size, stride):
-        # PyTorch implementation
-        return torch.as_strided_(inp, size, stride)
-
     bench = base.GenericBenchmark(
         input_fn=as_strided_input_fn,
         op_name="as_strided_",
-        torch_op=torch_as_strided_,
+        torch_op=torch.as_strided_,
         dtypes=consts.FLOAT_DTYPES,
     )
 
