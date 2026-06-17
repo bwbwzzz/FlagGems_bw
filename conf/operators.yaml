@@ -6711,6 +6711,7 @@ ops:
       - Math
     stages:
       - beta: '5.0'
+      - stable: '5.3'
   - id: special_psi
     description: |
       Computes the logarithmic derivative of the Gamma function (also known as
