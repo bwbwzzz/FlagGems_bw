@@ -5,9 +5,8 @@ import flag_gems
 
 from . import accuracy_utils as utils
 
-# Cholesky decomposition only supports float32 on GPU
-# float64 is not supported by many GPU backends
-CHOLESKY_DTYPES = [torch.float32]
+# Cholesky decomposition supports float32 and float64 on NVIDIA GPU via cuSOLVER
+CHOLESKY_DTYPES = [torch.float32, torch.float64]
 
 
 @pytest.mark.cholesky

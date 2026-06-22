@@ -32,7 +32,7 @@ def test_cholesky():
         input_fn=cholesky_input_fn,
         op_name="cholesky",
         torch_op=torch.cholesky,
-        # float64 not supported by GPU Cholesky backends
-        dtypes=[torch.float32],
+        # float64 supported on NVIDIA via cuSOLVER; use consts.FLOAT_DTYPES equivalent
+        dtypes=[torch.float32, torch.float64],
     )
     bench.run()
