@@ -6,7 +6,6 @@ import flag_gems
 from . import base, consts
 
 
-# TODO(Qiming): Consolidate this to a base package
 class NormBenchmark(base.GenericBenchmark):
     # TODO: add new metric
 
