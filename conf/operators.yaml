@@ -1013,7 +1013,7 @@ ops:
     kind:
       - Math
     stages:
-      - stable: '5.4'
+      - alpha: '5.4'
   - id: bmm
     description: Performs a batch matrix-matrix product of matrices stored in `input` and `mat2`.
     for:
