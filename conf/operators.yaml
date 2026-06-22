@@ -534,6 +534,7 @@ ops:
       - Math
     stages:
       - beta: '5.0'
+      - stable: '5.4'
   - id: arctan_
     description: |
       Computes the element-wise inverse tangent (arctangent) of a given input tensor.
