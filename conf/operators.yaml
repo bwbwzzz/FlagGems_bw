@@ -7209,8 +7209,7 @@ ops:
     kind:
       - Tensor
     stages:
-      - beta: '5.0'
-      - stable: '5.3'
+      - alpha: '5.4'
   - id: t_copy
     description: Transpose a 2D tensor into a new tensor with contiguous memory layout.
     for:
