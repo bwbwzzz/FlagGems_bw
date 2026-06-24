@@ -6809,7 +6809,9 @@ ops:
     stages:
       - stable: '5.0'
   - id: sym_size
-    description: Returns the size of a tensor as a list of integers.
+    description: |
+      Returns the size of a tensor as a list of integers.
+      This is a metadata operation with no computation.
     for:
       - sym_size
     labels:
