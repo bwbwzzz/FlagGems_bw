@@ -623,6 +623,7 @@ _FULL_CONFIG = (
     ("sum.dim_IntList", sum_dim),
     ("sum.out", sum_out),
     ("svd", svd),
+    ("t_", t_),
     ("t_copy", t_copy),
     ("t_copy.out", t_copy_out),
     ("tan", tan),
