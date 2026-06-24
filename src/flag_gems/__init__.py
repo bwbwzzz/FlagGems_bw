@@ -329,6 +329,7 @@ _FULL_CONFIG = (
     ("gather", gather),
     ("gather_backward", gather_backward),
     ("gcd", gcd),
+    ("gcd_", gcd_),
     ("gcd.out", gcd_out),
     ("ge.Scalar", ge_scalar),
     ("ge.Tensor", ge),

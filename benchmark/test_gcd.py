@@ -42,3 +42,21 @@ def test_gcd_out():
         input_fn=gcd_out_input_fn,
     )
     bench.run()
+
+
+def gcd_inplace_input_fn(shape, dtype, device):
+    inp1 = torch.randint(-0x7FFF, 0x7FFF, shape, dtype=dtype, device=device)
+    inp2 = torch.randint(-0x7FFF, 0x7FFF, shape, dtype=dtype, device=device)
+    yield inp1, inp2
+
+
+@pytest.mark.gcd_
+def test_gcd_inplace():
+    bench = base.GenericBenchmark(
+        op_name="gcd_",
+        torch_op=lambda a, b: a.gcd_(b),
+        dtypes=consts.INT_DTYPES,
+        input_fn=gcd_inplace_input_fn,
+        is_inplace=True,
+    )
+    bench.run()

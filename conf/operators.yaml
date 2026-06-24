@@ -3100,12 +3100,15 @@ ops:
     description: Computes the element-wise greatest common divisor (GCD) of `input` and `other`.
     for:
       - gcd
+      - gcd_
     labels:
       - aten
+      - KernelGen
+      - pointwise
     kind:
       - Math
     stages:
-      - beta: '5.3'
+      - alpha: '5.1'
   - id: gcd_out
     description: A variant of `gcd()` that allows the output to be assigned to the specified `out`.
     for:
