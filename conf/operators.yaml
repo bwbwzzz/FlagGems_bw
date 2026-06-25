@@ -3783,7 +3783,7 @@ ops:
     stages:
       - stable: '2.2'
       - removed: '3.0'
-      - beta: '5.1'
+      - beta: '5.3'
   - id: irshift__
     description: Triton kernel implementation for __irshift__.
     for:
