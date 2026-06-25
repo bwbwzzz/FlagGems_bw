@@ -29,15 +29,6 @@ class SymSizeBenchmark(base.Benchmark):
             x = torch.randn(shape, dtype=cur_dtype, device=self.device)
             yield x,
 
-    def get_tflops(self, op, *args, **kwargs):
-        # sym_size is a metadata operation, not a compute operation
-        # Return 0 tflops as it's not a tensor computation
-        return 0
-
-    def get_bw(self, op, *args, **kwargs):
-        # sym_size doesn't move data, just returns metadata
-        return 0
-
 
 @pytest.mark.sym_size
 def test_sym_size():
