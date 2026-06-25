@@ -3620,7 +3620,7 @@ ops:
       - beta: '5.0'
       - stable: '5.3'
   - id: igamma
-    description: Triton kernel implementation for igamma.
+    description: Computes the regularized lower incomplete gamma function element-wise.
     for:
       - igamma
     labels:
