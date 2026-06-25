@@ -1,5 +1,5 @@
-from flag_gems.ops.__irshift__ import __irshift__
 from flag_gems.ops.__ilshift__ import __ilshift__
+from flag_gems.ops.__irshift__ import __irshift__
 from flag_gems.ops._amp_foreach_non_finite_check_and_unscale_ import (
     _amp_foreach_non_finite_check_and_unscale_,
 )
