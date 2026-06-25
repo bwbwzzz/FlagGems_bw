@@ -14,8 +14,10 @@ def test_special_spherical_bessel_j0(shape, dtype):
     inp = torch.randn(shape, dtype=dtype, device=flag_gems.device)
     ref_inp = utils.to_reference(inp)
     ref_out = torch.special.spherical_bessel_j0(ref_inp)
+
     with flag_gems.use_gems():
         res_out = torch.special.spherical_bessel_j0(inp)
+
     utils.gems_assert_close(res_out, ref_out, dtype)
 
 
@@ -28,8 +30,11 @@ def test_special_spherical_bessel_j0_(shape, dtype):
     ref_inp = utils.to_reference(inp.clone())
     ref_out = torch.special.spherical_bessel_j0(ref_inp)
 
+    data_ptr = inp.data_ptr()
+
     with flag_gems.use_gems():
-        res_out = inp.special_spherical_bessel_j0_()
+        res_out = torch.ops.aten.special_spherical_bessel_j0_(inp)
 
     assert res_out is inp
+    assert inp.data_ptr() == data_ptr
     utils.gems_assert_close(inp, ref_out, dtype)
