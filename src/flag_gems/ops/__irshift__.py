@@ -14,6 +14,6 @@ def __irshift__kernel(a, b):
     return a >> b
 
 
-def __irshift__(self, other, *, out=None):
+def __irshift__(self, other):
     logger.debug("GEMS __IRSHIFT__")
-    return __irshift__kernel(self, other, out=out)
+    return __irshift__kernel(self, other, out0=self)
