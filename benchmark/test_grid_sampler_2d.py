@@ -3,7 +3,6 @@ import torch
 
 from . import base, consts
 
-# grid_sampler_2d 特定 shapes：小/中/大逐步递增，覆盖低分辨率和高分辨率场景
 GRID_SAMPLER_SHAPES = [
     (1, 1, 32, 32),
     (1, 3, 64, 64),
