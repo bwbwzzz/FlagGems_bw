@@ -3288,7 +3288,7 @@ ops:
     kind:
       - Math
     stages:
-      - alpha: '5.1'
+      - alpha: '5.4'
   - id: is_all_true
     description: The low-level implementation for checking if all elements in a tensor are True.
     for:
