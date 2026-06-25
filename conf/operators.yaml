@@ -3373,6 +3373,17 @@ ops:
       - NeuralNetwork
     stages:
       - alpha: '5.3'
+  - id: grid_sampler_2d_backward
+    description: Triton kernel implementation for grid_sampler_2d_backward.
+    for:
+      - grid_sampler_2d_backward
+    labels:
+      - aten
+      - KernelGen
+    kind:
+      - Math
+    stages:
+      - alpha: '5.4'
   - id: group_norm
     description: An internal IR for applying Group Normalization for last certain number of dimensions.
     for:
@@ -3608,6 +3619,28 @@ ops:
     stages:
       - beta: '5.0'
       - stable: '5.3'
+  - id: igamma
+    description: Triton kernel implementation for igamma.
+    for:
+      - igamma
+    labels:
+      - aten
+      - KernelGen
+    kind:
+      - Math
+    stages:
+      - alpha: '5.4'
+  - id: igamma_
+    description: The in-place version of `igamma()`.
+    for:
+      - igamma_
+    labels:
+      - aten
+      - KernelGen
+    kind:
+      - Math
+    stages:
+      - alpha: '5.4'
   - id: ilshift
     description: Computes the in-place bitwise left shift of `self` by `other` bits.
     for:

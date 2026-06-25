@@ -211,6 +211,7 @@ from flag_gems.ops.greater import (
     greater_scalar_out,
 )
 from flag_gems.ops.grid_sample import grid_sample
+from flag_gems.ops.grid_sampler_2d_backward import grid_sampler_2d_backward
 from flag_gems.ops.group_gemm import group_mm
 from flag_gems.ops.groupnorm import group_norm, group_norm_backward
 from flag_gems.ops.gt import gt, gt_scalar
@@ -228,6 +229,7 @@ from flag_gems.ops.hstack import hstack
 from flag_gems.ops.hypot import hypot, hypot_out
 from flag_gems.ops.i0 import i0, i0_out
 from flag_gems.ops.i0_ import i0_
+from flag_gems.ops.igamma import igamma, igamma_
 from flag_gems.ops.im2col import im2col
 from flag_gems.ops.index import index
 from flag_gems.ops.index_add import index_add, index_add_
@@ -760,6 +762,7 @@ __all__ = [
     "greater_scalar",
     "greater_scalar_out",
     "grid_sample",
+    "grid_sampler_2d_backward",
     "group_mm",
     "group_norm",
     "group_norm_backward",
@@ -780,6 +783,8 @@ __all__ = [
     "i0",
     "i0_",
     "i0_out",
+    "igamma",
+    "igamma_",
     "im2col",
     "index",
     "index_add",
