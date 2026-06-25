@@ -7,12 +7,6 @@ from . import base, consts
 SYM_STRIDE_SHAPES = [(2, 3), (10, 20, 30), (5, 10), (100,), (1, 2, 3, 4)]
 
 
-def _sym_stride_input_fn(shape, cur_dtype, device):
-    x = torch.randn(shape, dtype=cur_dtype, device=device)
-    # Return just the tensor, not a tuple
-    return x
-
-
 class SymStrideBenchmark(base.Benchmark):
     """Custom benchmark for sym_stride - returns tensor metadata (stride), not a computed tensor."""
 
