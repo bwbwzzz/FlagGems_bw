@@ -23,9 +23,3 @@ def sym_stride(A):
     # sym_stride returns tensor metadata (stride), not a computed tensor
     # For FlagGems integration, we return the actual stride
     return A.stride()
-
-
-def sym_stride_(A):
-    """In-place version of sym_stride (returns the same stride, tensor is unchanged)."""
-    logger.debug("GEMS SYM_STRIDE")
-    return A.stride()
