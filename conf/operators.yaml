@@ -59,7 +59,7 @@ ops:
     kind:
       - Math
     stages:
-      - alpha: '5.1'
+      - alpha: '5.4'
   - id: acosh_
     description: The in-place version of `acosh()`.
     for:
@@ -70,7 +70,7 @@ ops:
     kind:
       - Math
     stages:
-      - alpha: '5.3'
+      - alpha: '5.4'
   - id: act_quant_triton
     description: This is a fused operator.
     for:
