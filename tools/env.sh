@@ -1,7 +1,7 @@
-VENDOR=$1
-echo "Setting up environment variable for vendor $VENDOR"
+BACKEND=$1
+echo "Setting up environment variable for backend $BACKEND"
 
-case $VENDOR in
+case $BACKEND in
   ascend-cann850|ascend-cann900)
     # This script is provided by the Huawei Ascend CANN toolkit installation.
     if [ -f /usr/local/Ascend/ascend-toolkit/set_env.sh ]; then
@@ -13,6 +13,10 @@ case $VENDOR in
 
     # TODO: Check if this is necessary
     # export TRITON_ALL_BLOCKS_PARALLEL=1
+    ;;
+  cambricon)
+    export PATH=/usr/local/neuware/bin:$PATH
+    export LD_LIBRARY_PATH=/usr/local/neuware/lib64:$LD_LIBRARY_PATH
     ;;
   hygon)
     source /opt/dtk-26.04/env.sh
