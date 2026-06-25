@@ -19,7 +19,7 @@ def sym_stride(A):
     This operator returns the stride of the input tensor as a list of integers.
     It is used for torch.compile symbolic tracing.
     """
-    logger.debug("GEMS sym_stride")
+    logger.debug("GEMS SYM_STRIDE")
     # sym_stride returns tensor metadata (stride), not a computed tensor
     # For FlagGems integration, we return the actual stride
     return A.stride()
@@ -27,5 +27,5 @@ def sym_stride(A):
 
 def sym_stride_(A):
     """In-place version of sym_stride (returns the same stride, tensor is unchanged)."""
-    logger.debug("GEMS sym_stride_")
+    logger.debug("GEMS SYM_STRIDE")
     return A.stride()
