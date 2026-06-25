@@ -1,11 +1,8 @@
-<<<<<<< pr/nv-__irshift__
 from flag_gems.ops.__irshift__ import __irshift__
-=======
 from flag_gems.ops.__ilshift__ import __ilshift__
 from flag_gems.ops._amp_foreach_non_finite_check_and_unscale_ import (
     _amp_foreach_non_finite_check_and_unscale_,
 )
->>>>>>> master
 from flag_gems.ops._euclidean_dist import _euclidean_dist
 from flag_gems.ops._functional_sym_constrain_range_for_size import (
     _functional_sym_constrain_range_for_size,
@@ -506,14 +503,11 @@ from flag_gems.ops.zeros import zero_, zeros
 from flag_gems.ops.zeros_like import zeros_like
 
 __all__ = [
-<<<<<<< pr/nv-__irshift__
     "__irshift__",
-=======
     "SUPPORTED_FP8_DTYPE",
     "ScaleDotProductAttention",
     "__ilshift__",
     "_amp_foreach_non_finite_check_and_unscale_",
->>>>>>> master
     "_assert_async",
     "_cdist_backward",
     "_conv_depthwise2d",
