@@ -248,6 +248,7 @@ _FULL_CONFIG = (
     ("cumprod", cumprod),
     ("cumprod_", cumprod_),
     ("cumsum", cumsum),
+    ("cumsum_", cumsum_),
     ("cumsum.out", cumsum_out),
     ("deg2rad", deg2rad),
     ("dequantize", dequantize),
