@@ -1040,7 +1040,7 @@ __all__ = [
     "special_log_softmax",
     "special_shifted_chebyshev_polynomial_u",
     "special_shifted_chebyshev_polynomial_u_",
-     "special_spherical_bessel_j0",
+    "special_spherical_bessel_j0",
     "special_spherical_bessel_j0_",
     "split_with_sizes_copy",
     "sqrt",
