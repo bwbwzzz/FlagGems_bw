@@ -7,6 +7,7 @@ from . import accuracy_utils as utils
 from . import conftest as cfg
 
 if cfg.QUICK_MODE:
+    # Restrict dtypes in quick mode for CI speed
     FLOAT_DTYPES = [torch.float32]
     DIM_LIST = [0]
     KEEPDIM = [True]
@@ -16,7 +17,7 @@ else:
     KEEPDIM = [True, False]
 
 
-@pytest.mark.prod
+@pytest.mark.reduce_prod
 @pytest.mark.parametrize("shape", utils.REDUCTION_SHAPES)
 @pytest.mark.parametrize("dtype", FLOAT_DTYPES)
 def test_prod(shape, dtype):
@@ -35,12 +36,12 @@ def test_prod(shape, dtype):
 
 
 # TODO: failed at (200, 40999, 3), while successed at this shape in mean_dim
-@pytest.mark.prod_dim_int
+@pytest.mark.reduce_prod_dim_int
 @pytest.mark.parametrize("shape", utils.REDUCTION_SMALL_SHAPES)
 @pytest.mark.parametrize("keepdim", KEEPDIM)
 @pytest.mark.parametrize("dim", DIM_LIST)
 @pytest.mark.parametrize("dtype", FLOAT_DTYPES)
-def test_prod_dim_int(shape, dim, keepdim, dtype):
+def test_reduce_prod_dim_int(shape, dim, keepdim, dtype):
     if flag_gems.vendor_name == "kunlunxin":
         torch.manual_seed(0)
         torch.cuda.manual_seed_all(0)

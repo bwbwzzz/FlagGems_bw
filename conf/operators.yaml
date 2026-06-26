@@ -5430,21 +5430,22 @@ ops:
       - Math
     stages:
       - alpha: '5.1'
-  - id: prod
+  - id: reduce_prod
     description: Returns the product of all elements in the `input` tensor.
     for:
-      - prod
+      - reduce_prod
     labels:
+      - KernelGen
       - aten
       - Reduction
     kind:
       - LinearAlg
     stages:
       - stable: '2.0'
-  - id: prod_dim_int
+  - id: reduce_prod_dim_int
     description: Returns the product of each row of the `input` tensor in the given dimension `dim`.
     for:
-      - prod.dim_int
+      - reduce_prod.dim_int
     kind:
       - Reduction
     stages:
