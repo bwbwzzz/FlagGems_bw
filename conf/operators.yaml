@@ -1254,7 +1254,6 @@ ops:
       - aten
       - KernelGen
     kind:
-      - Math
       - NeuralNetwork
     stages:
       - alpha: '5.4'
@@ -1262,6 +1261,13 @@ ops:
     description: Triton kernel implementation for cholesky.
     for:
       - cholesky
+    labels:
+      - aten
+      - KernelGen
+    kind:
+      - LinearAlg
+    stages:
+      - alpha: '5.4'
   - id: chunk_gated_delta_rule_fwd
     description: |
       The forward case for `ChunkGatedDeltaRuleFunction` with Flash Linear Attention (FLA).
