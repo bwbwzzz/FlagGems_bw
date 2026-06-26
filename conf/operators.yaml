@@ -7243,7 +7243,7 @@ ops:
     kind:
       - NeuralNetwork
     stages:
-
+      - stable: '5.0'
   - id: swin_transformer_attention
     description: |
       Implements Swin Transformer attention mechanism with windowed attention.
@@ -7259,8 +7259,7 @@ ops:
     kind:
       - NeuralNetwork
     stages:
-      - beta: "5.5"
-      - stable: '5.0'
+      - alpha: "5.4"
   - id: t_copy
     description: Transpose a 2D tensor into a new tensor with contiguous memory layout.
     for:
