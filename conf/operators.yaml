@@ -7243,6 +7243,24 @@ ops:
     kind:
       - NeuralNetwork
     stages:
+
+  - id: swin_transformer_attention
+    description: |
+      Implements Swin Transformer attention mechanism with windowed attention.
+      Computes attention scores for query, key, and value tensors using
+      window-based attention as used in Swin Transformer architectures.
+    for:
+      - Swin_Transformer_Attention
+      - swin_transformer_attention
+    labels:
+      - aten
+      - Vision
+      - Attention
+      - KernelGen
+    kind:
+      - NeuralNetwork
+    stages:
+      - beta: "5.5"
       - stable: '5.0'
   - id: t_copy
     description: Transpose a 2D tensor into a new tensor with contiguous memory layout.

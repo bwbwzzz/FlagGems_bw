@@ -629,6 +629,8 @@ _FULL_CONFIG = (
     ("sum.dim_IntList", sum_dim),
     ("sum.out", sum_out),
     ("svd", svd),
+    ("Swin_Transformer_Attention", Swin_Transformer_Attention),
+    ("swin_transformer_attention", Swin_Transformer_Attention),
     ("t_copy", t_copy),
     ("t_copy.out", t_copy_out),
     ("tan", tan),
