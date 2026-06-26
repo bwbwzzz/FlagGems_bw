@@ -356,6 +356,7 @@ from flag_gems.ops.randn import randn
 from flag_gems.ops.randn_like import randn_like
 from flag_gems.ops.randperm import randperm
 from flag_gems.ops.reciprocal import reciprocal, reciprocal_
+from flag_gems.ops.reduce_norm import reduce_norm
 from flag_gems.ops.reflection_pad1d import reflection_pad1d, reflection_pad1d_out
 from flag_gems.ops.reflection_pad1d_backward import reflection_pad1d_backward
 from flag_gems.ops.reflection_pad2d import reflection_pad2d, reflection_pad2d_out
@@ -932,6 +933,7 @@ __all__ = [
     "randperm",
     "reciprocal",
     "reciprocal_",
+    "reduce_norm",
     "reflection_pad1d",
     "reflection_pad1d_backward",
     "reflection_pad1d_out",

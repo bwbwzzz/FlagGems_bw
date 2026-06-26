@@ -5600,6 +5600,17 @@ ops:
       - Math
     stages:
       - stable: '2.2'
+  - id: reduce_norm
+    description: Triton kernel implementation for reduce_norm.
+    for:
+      - reduce_norm
+    labels:
+      - aten
+      - KernelGen
+    kind:
+      - Math
+    stages:
+      - alpha: '5.4'
   - id: reflection_pad1d
     description: |
       Pads the input 3D or 2D tensor (typically representing signals or sequences)
