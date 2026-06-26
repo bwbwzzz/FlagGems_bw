@@ -31,7 +31,7 @@ ops:
     for:
       - absolute
     labels:
-      - aaten
+      - aten
       - KernelGen
     kind:
       - Math
@@ -2296,6 +2296,18 @@ ops:
       - NeuralNetwork
     stages:
       - stable: '5.0'
+  - id: embedding_bag_collection
+    description: Triton kernel for embedding bag forward collection. Groups embeddings into bags defined by offsets, performing reduction within each bag.
+    for:
+      - embedding_bag_collection
+    labels:
+      - aten
+      - KernelGen
+    kind:
+      - Math
+    stages:
+      - alpha: '5.4'
+
   - id: empty
     description: Tensor factory operator — verifies dtype inference for newly allocated tensors.
     for:
