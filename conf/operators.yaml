@@ -800,7 +800,7 @@ ops:
     kind:
       - Math
     stages:
-      - beta: '5.1'
+      - beta: '5.3'
   - id: arctan2_
     description: |
       The in-place version of `atan2()`.
