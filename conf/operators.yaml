@@ -7442,6 +7442,17 @@ ops:
       - NeuralNetwork
     stages:
       - beta: '5.3'
+  - id: top_k_sampling
+    description: Triton kernel implementation for top_k_sampling.
+    for:
+      - top_k_sampling
+    labels:
+      - aten
+      - KernelGen
+    kind:
+      - Math
+    stages:
+      - alpha: '5.4'
   - id: topk
     description: |
       Returns the `k` largest elements of the given `input` tensor along a given dimension.
