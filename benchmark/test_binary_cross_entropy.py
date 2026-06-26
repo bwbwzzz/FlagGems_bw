@@ -28,7 +28,7 @@ def test_binary_cross_entropy():
     bench.run()
 
 
-@pytest.mark.binary_cross_entropy
+@pytest.mark.binary_cross_entropy_out
 def test_binary_cross_entropy_out():
     bench = base.GenericBenchmark2DOnly(
         op_name="binary_cross_entropy",
