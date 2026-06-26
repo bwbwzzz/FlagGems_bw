@@ -60,7 +60,12 @@ def test_arctan2_special_values(dtype):
     with flag_gems.use_gems():
         res_out = torch.arctan2(x, y)
 
-    utils.gems_assert_close(res_out, ref_out, dtype)
+    # NaN cannot be compared by the default gems_assert_close,
+    # because equal_nan=False by default.
+    nan_mask = torch.isnan(ref_out)
+    assert torch.equal(torch.isnan(res_out), nan_mask)
+
+    utils.gems_assert_close(res_out[~nan_mask], ref_out[~nan_mask], dtype)
 
 
 @pytest.mark.arctan2
