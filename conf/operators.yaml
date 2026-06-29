@@ -7282,7 +7282,7 @@ ops:
       - aten
       - KernelGen
     kind:
-      - Math
+      - Tensor
     stages:
       - alpha: '5.4'
   - id: t_copy
