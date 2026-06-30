@@ -616,11 +616,8 @@ _FULL_CONFIG = (
     ("sqrt_", sqrt_),
     ("square", square),
     ("square.out", square_out),
-<<<<<<< pr/nv-squeeze_copy
     ("squeeze_copy", squeeze_copy),
-=======
     ("square_", square_),
->>>>>>> master
     ("stack", stack),
     ("std.correction", std),
     ("sub.Tensor", sub),
