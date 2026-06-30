@@ -25,6 +25,25 @@ def test_divide(shape, dtype):
     utils.gems_assert_close(res_out, ref_out, dtype)
 
 
+@pytest.mark.inplace
+@pytest.mark.divide_
+@pytest.mark.parametrize("shape", utils.POINTWISE_SHAPES)
+@pytest.mark.parametrize("dtype", utils.FLOAT_DTYPES)
+def test_divide_(shape, dtype):
+    inp1 = torch.randn(shape, dtype=dtype, device=flag_gems.device)
+    inp2 = torch.randn(shape, dtype=dtype, device=flag_gems.device)
+    # Avoid division by zero
+    inp2 = torch.where(inp2 == 0, torch.ones_like(inp2), inp2)
+
+    ref_inp1 = utils.to_reference(inp1, True)
+    ref_inp2 = utils.to_reference(inp2, True)
+
+    ref_out = ref_inp1.divide_(ref_inp2)
+    with flag_gems.use_gems():
+        res_out = inp1.divide_(inp2)
+
+    utils.gems_assert_close(res_out, ref_out, dtype)
+
 @pytest.mark.divide
 @pytest.mark.parametrize("shape", utils.POINTWISE_SHAPES)
 @pytest.mark.parametrize("dtype", utils.FLOAT_DTYPES)
