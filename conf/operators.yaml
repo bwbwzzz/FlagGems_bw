@@ -6201,10 +6201,38 @@ ops:
   - id: swish
     description: |
       Computes the Swish activation function (x * sigmoid(x)), which is mathematically
-      equivalent to SiLU. Includes forward, backward, and in-place variants.
+      equivalent to SiLU.
     for:
       - swish
+    labels:
+      - aten
+      - nn.functional
+      - pointwise
+      - KernelGen
+      - Activation
+    kind:
+      - NeuralNetwork
+    stages:
+      - alpha: '5.4'
+      - beta: "5.0"
+  - id: swish_
+    description: The in-place version of `swish()`.
+    for:
       - swish_
+    labels:
+      - aten
+      - nn.functional
+      - pointwise
+      - KernelGen
+      - Activation
+    kind:
+      - NeuralNetwork
+    stages:
+      - alpha: '5.4'
+      - beta: "5.0"
+  - id: swish_backward
+    description: A variant of `swish()` for backward case.
+    for:
       - swish_backward
     labels:
       - aten

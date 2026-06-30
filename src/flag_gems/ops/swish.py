@@ -35,7 +35,7 @@ def swish(self):
 
 
 def swish_backward(grad_output, self):
-    logger.debug("GEMS SWISH BACKWARD")
+    logger.debug("GEMS SWISH_BACKWARD")
     grad_input = swish_backward_kernel(self, grad_output)
     return grad_input
 
