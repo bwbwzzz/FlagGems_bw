@@ -7121,7 +7121,7 @@ ops:
     kind:
       - Math
     stages:
-      - beta: '5.1'
+      - beta: '5.3'
   - id: squeeze_copy
     description: Triton kernel implementation for squeeze_copy.
     for:
