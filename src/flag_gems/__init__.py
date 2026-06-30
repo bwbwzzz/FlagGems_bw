@@ -261,7 +261,6 @@ _FULL_CONFIG = (
     ("diff", diff),
     ("digamma", special_psi),
     ("digamma_", digamma_),
-    ("special_psi", special_psi),
     ("div.Scalar", true_divide),
     ("div.Scalar_mode", div_mode),
     ("div.Tensor", true_divide),
@@ -615,6 +614,7 @@ _FULL_CONFIG = (
     ("special_i1", special_i1),
     ("special_i1.out", special_i1_out),
     ("special.log_softmax", special_log_softmax),
+    ("special_psi", special_psi),
     ("special_shifted_chebyshev_polynomial_u", special_shifted_chebyshev_polynomial_u),
     (
         "special_shifted_chebyshev_polynomial_u_",
