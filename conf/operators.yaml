@@ -4220,6 +4220,7 @@ ops:
       - Math
     stages:
       - beta: '5.0'
+      - stable: '5.3'
   - id: log2
     description: Returns a new tensor with the logarithm to the base 2 of the elements of `input`.
     for:
@@ -4244,7 +4245,6 @@ ops:
       - Math
     stages:
       - alpha: '5.4'
-      - stable: '5.3'
   - id: log_normal_
     description: "Fills the tensor with log-normal samples parameterized by mean and standard deviation, in-place."
     for:
