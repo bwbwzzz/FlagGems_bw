@@ -29,7 +29,10 @@ def test_acosh_(shape, dtype):
     ref_inp = utils.to_reference(inp.clone())
 
     ref_out = torch.acosh_(ref_inp)
+    inp_ptr = inp.data_ptr()
     with flag_gems.use_gems():
         res_out = torch.acosh_(inp)
 
+    assert res_out is inp
+    assert inp.data_ptr() == inp_ptr
     utils.gems_assert_close(res_out, ref_out, dtype)
