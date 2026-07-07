@@ -10,6 +10,10 @@ logger = logging.getLogger(__name__)
 
 def cumsum_(inp, dim, *, dtype=None):
     logger.debug("GEMS CUMSUM_")
+    if dtype is not None and dtype != inp.dtype:
+        raise RuntimeError(
+            "Bad in-place call: input tensor dtype and output tensor dtype should match"
+        )
     assert inp.dtype in (
         torch.float16,
         torch.float32,

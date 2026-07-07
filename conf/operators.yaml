@@ -1852,7 +1852,7 @@ ops:
     kind:
       - Reduction
     stages:
-      - stable: '5.4'
+      - alpha: '5.4'
   - id: cumsum_out
     destination: |
       Returns the cumulative sum of elements of `input` in the dimension `dim`.
