@@ -12,10 +12,6 @@ class TensorSelectBenchmark(base.GenericBenchmark2DOnly):
         return ["gbps"]
 
     def set_more_shapes(self):
-        # Speed Up Benchmark Test, Big Shape Will Cause Timeout
-        if flag_gems.vendor_name == "kunlunxin":
-            return []
-
         shapes = super().set_more_shapes()
         shapes = [
             shape
