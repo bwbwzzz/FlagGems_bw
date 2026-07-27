@@ -26,16 +26,12 @@ def ge__input_fn(shape, dtype, device):
     yield inp1, inp2
 
 
-def ge__torch_op(inp1, inp2):
-    return inp1.clone().ge_(inp2)
-
-
 @pytest.mark.ge_
 def test_ge_():
     bench = Ge_Benchmark(
         op_name="ge_",
         input_fn=ge__input_fn,
-        torch_op=ge__torch_op,
+        torch_op=torch.Tensor.ge_,
         dtypes=consts.FLOAT_DTYPES,
         is_inplace=True,
     )
