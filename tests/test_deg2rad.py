@@ -41,6 +41,9 @@ def test_deg2rad_(shape, dtype):
 
     assert res_out is act_inp
     assert act_inp.data_ptr() == act_data_ptr
+    utils.gems_assert_close(act_inp, ref_inp, dtype)
+
+    ref_inp = utils.to_reference(inp, True)
     ref_inp.deg2rad_()
     with flag_gems.use_gems():
         inp.deg2rad_()
