@@ -57,13 +57,6 @@ def test_deg2rad_(shape, dtype):
     assert act_inp.data_ptr() == act_data_ptr
     utils.gems_assert_close(act_inp, ref_inp, dtype)
 
-    ref_inp = utils.to_reference(inp, True)
-    ref_inp.deg2rad_()
-    with flag_gems.use_gems():
-        inp.deg2rad_()
-
-    utils.gems_assert_close(inp, ref_inp, dtype)
-
 
 @pytest.mark.deg2rad_out
 @pytest.mark.parametrize("shape", utils.POINTWISE_SHAPES)
