@@ -47,6 +47,9 @@ from flag_gems.ops._jagged_to_padded_dense_forward import (
 )
 from flag_gems.ops._linalg_eigvals import _linalg_eigvals
 from flag_gems.ops._masked_scale import _masked_scale
+from flag_gems.ops._native_batch_norm_legit_functional import (
+    _native_batch_norm_legit_functional,
+)
 from flag_gems.ops._nested_view_from_buffer_copy import _nested_view_from_buffer_copy
 from flag_gems.ops._pdist_backward import _pdist_backward
 from flag_gems.ops._prelu_kernel import _prelu_kernel
@@ -97,6 +100,7 @@ from flag_gems.ops.angle import angle
 from flag_gems.ops.any import any, any_dim, any_dims
 from flag_gems.ops.arange import arange, arange_start
 from flag_gems.ops.arccos import arccos, arccos_
+from flag_gems.ops.arccosh_ import arccosh_
 from flag_gems.ops.arcsin import arcsin, arcsin_, arcsin_out
 from flag_gems.ops.arcsinh import arcsinh, arcsinh_out
 from flag_gems.ops.arcsinh_ import arcsinh_
@@ -699,6 +703,7 @@ __all__ = [
     "_jagged_to_padded_dense_forward",
     "_linalg_eigvals",
     "_masked_scale",
+    "_native_batch_norm_legit_functional",
     "_nested_view_from_buffer_copy",
     "_pdist_backward",
     "_prelu_kernel",
@@ -766,6 +771,7 @@ __all__ = [
     "arange_start",
     "arccos",
     "arccos_",
+    "arccosh_",
     "arcsin",
     "arcsin_",
     "arcsin_out",
