@@ -584,6 +584,10 @@ from flag_gems.ops.special_legendre_polynomial_p import special_legendre_polynom
 from flag_gems.ops.special_log1p import special_log1p, special_log1p_out
 from flag_gems.ops.special_log_softmax import special_log_softmax
 from flag_gems.ops.special_logsumexp import special_logsumexp
+from flag_gems.ops.special_modified_bessel_i0 import (
+    special_modified_bessel_i0,
+    special_modified_bessel_i0_out,
+)
 from flag_gems.ops.special_modified_bessel_k0 import (
     special_modified_bessel_k0,
     special_modified_bessel_k0_out,
@@ -1102,6 +1106,8 @@ __all__ = [
     "logaddexp2_out",
     "logcumsumexp",
     "logcumsumexp_out",
+    "special_modified_bessel_i0",
+    "special_modified_bessel_i0_out",
     "xlogy",
     "xlogy_out",
     "xlogy_tensor_scalar",
