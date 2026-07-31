@@ -5154,6 +5154,20 @@ ops:
       - Math
     stages:
       - beta: '5.4'
+  - id: special_psi
+    description: |
+      Computes the digamma function (psi(x)) for each element in the input tensor,
+      designed for special mathematical functions.
+    for:
+      - special_psi
+    labels:
+      - aten
+      - pointwise
+      - KernelGen
+    kind:
+      - Math
+    stages:
+      - alpha: '5.4'
   - id: xlogy
     description: Computes `input * log(other)` element-wise, returning zero where `input` is zero (following PyTorch's `xlogy` semantics).
     for:
