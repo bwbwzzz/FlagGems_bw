@@ -18,10 +18,15 @@ def _ge_func(x, y):
 
 def ge_(A, B):
     logger.debug("GEMS GE_")
-    if isinstance(A, torch.Tensor) and isinstance(B, torch.Tensor):
+
+    if not isinstance(A, torch.Tensor):
+        raise TypeError("ge_ expects A to be a torch.Tensor")
+
+    if isinstance(B, torch.Tensor):
         _ge_func(A, B, out0=A)
     else:
         _ge_func_scalar(A, B, out0=A)
+
     return A
 
 
