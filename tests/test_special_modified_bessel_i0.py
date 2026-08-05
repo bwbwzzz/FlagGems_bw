@@ -1,6 +1,3 @@
-import pytest
-import torch
-
 import flag_gems
 
 from . import accuracy_utils as utils
@@ -11,10 +8,9 @@ from . import accuracy_utils as utils
 @pytest.mark.parametrize("dtype", utils.FLOAT_DTYPES)
 def test_special_modified_bessel_i0(shape, dtype):
     inp = torch.randn(shape, dtype=dtype, device=flag_gems.device)
-    ref_inp = utils.to_reference(inp)
-
-    ref_inp_cpu = ref_inp.to("cpu").float()
-    ref_out = torch.special.modified_bessel_i0(ref_inp_cpu)
+    # upcast=True: 参考计算用 float,并按框架约定处理设备
+    ref_inp = utils.to_reference(inp, True)
+    ref_out = torch.special.modified_bessel_i0(ref_inp)
 
     with flag_gems.use_gems():
         res_out = torch.special.modified_bessel_i0(inp)
@@ -27,11 +23,8 @@ def test_special_modified_bessel_i0(shape, dtype):
 @pytest.mark.parametrize("dtype", utils.FLOAT_DTYPES)
 def test_special_modified_bessel_i0_out(shape, dtype):
     inp = torch.randn(shape, dtype=dtype, device=flag_gems.device)
-    ref_inp = utils.to_reference(inp)
-
-    # 参考结果保持在 CPU
-    ref_inp_cpu = ref_inp.to("cpu").float()
-    ref_out = torch.special.modified_bessel_i0(ref_inp_cpu)
+    ref_inp = utils.to_reference(inp, True)
+    ref_out = torch.special.modified_bessel_i0(ref_inp)
 
     out_act = torch.empty_like(inp)
     with flag_gems.use_gems():
