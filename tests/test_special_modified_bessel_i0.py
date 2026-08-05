@@ -13,12 +13,8 @@ def test_special_modified_bessel_i0(shape, dtype):
     inp = torch.randn(shape, dtype=dtype, device=flag_gems.device)
     ref_inp = utils.to_reference(inp)
 
-    # PyTorch's special.modified_bessel_i0 only supports float32 on CUDA,
-    # so compute reference on CPU in float32 to avoid dtype limitations
     ref_inp_cpu = ref_inp.to("cpu").float()
     ref_out = torch.special.modified_bessel_i0(ref_inp_cpu)
-    # Move back to original device for comparison
-    ref_out = ref_out.to(flag_gems.device)
 
     with flag_gems.use_gems():
         res_out = torch.special.modified_bessel_i0(inp)
@@ -33,11 +29,9 @@ def test_special_modified_bessel_i0_out(shape, dtype):
     inp = torch.randn(shape, dtype=dtype, device=flag_gems.device)
     ref_inp = utils.to_reference(inp)
 
-    # PyTorch's special.modified_bessel_i0 only supports float32 on CUDA,
-    # so compute reference on CPU in float32 to avoid dtype limitations
+    # 参考结果保持在 CPU
     ref_inp_cpu = ref_inp.to("cpu").float()
     ref_out = torch.special.modified_bessel_i0(ref_inp_cpu)
-    ref_out = ref_out.to(flag_gems.device)
 
     out_act = torch.empty_like(inp)
     with flag_gems.use_gems():
