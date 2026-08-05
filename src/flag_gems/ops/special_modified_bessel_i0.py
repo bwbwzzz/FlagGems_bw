@@ -10,59 +10,60 @@ logger = logging.getLogger(__name__)
 
 @triton.jit
 def _special_modified_bessel_i0_kernel(
-    x_ptr, out_ptr, n_elements, BLOCK_SIZE: tl.constexpr
+    x_ptr,
+    out_ptr,
+    n_elements,
+    BLOCK_SIZE: tl.constexpr,
 ):
     pid = tl.program_id(axis=0)
-    block_start = pid * BLOCK_SIZE
-    offsets = block_start + tl.arange(0, BLOCK_SIZE)
+    offsets = pid * BLOCK_SIZE + tl.arange(0, BLOCK_SIZE)
     mask = offsets < n_elements
 
-    x = tl.load(x_ptr + offsets, mask=mask, other=0.0)
-    x_f32 = x.to(tl.float32)
-    ax = tl.abs(x_f32)
+    x = tl.load(
+        x_ptr + offsets,
+        mask=mask,
+        other=0.0,
+    ).to(tl.float32)
 
-    # Small region: |x| <= 3.75
-    t = x_f32 / 3.75
-    y = t * t
-    p_small = 1.0 + y * (
-        3.5156229
-        + y
-        * (
-            3.0899424
-            + y * (1.2067492 + y * (0.2659732 + y * (0.0360768 + y * 0.0045813)))
-        )
-    )
-
-    # Large region: |x| > 3.75
-    yb = 3.75 / ax
-    p_big = 0.39894228 + yb * (
-        0.01328592
-        + yb
-        * (
-            0.00225319
-            + yb
-            * (
-                -0.00157565
-                + yb
-                * (
-                    0.00916281
-                    + yb
-                    * (
-                        -0.02057706
-                        + yb * (0.02635537 + yb * (-0.01647633 + yb * 0.00392377))
-                    )
-                )
-            )
-        )
-    )
-    # Avoid division by zero via masking; big branch only used when ax > 3.75
-    res_big = tl.exp(ax) * p_big / tl.sqrt(ax)
-
+    ax = tl.abs(x)
     use_small = ax <= 3.75
-    res = tl.where(use_small, p_small, res_big)
 
-    # Store result; Triton will cast to the dtype of out_ptr as needed
-    tl.store(out_ptr + offsets, res, mask=mask)
+    # ---------------------------------------------------------
+    # Small region: |x| <= 3.75
+    # ---------------------------------------------------------
+    z = ax * (1.0 / 3.75)
+    y = z * z
+
+    p_small_inner = tl.fma(y, 0.0045813, 0.0360768)
+    p_small_inner = tl.fma(y, p_small_inner, 0.2659732)
+    p_small_inner = tl.fma(y, p_small_inner, 1.2067492)
+    p_small_inner = tl.fma(y, p_small_inner, 3.0899424)
+    p_small_inner = tl.fma(y, p_small_inner, 3.5156229)
+    res_small = tl.fma(y, p_small_inner, 1.0)
+
+    # ---------------------------------------------------------
+    # Large region: |x| > 3.75
+    #
+    # tl.where does not short-circuit, so use a safe denominator
+    # for lanes that will eventually select the small branch.
+    # ---------------------------------------------------------
+    safe_ax = tl.where(use_small, 3.75, ax)
+    yb = 3.75 / safe_ax
+
+    p_big_inner = tl.fma(yb, 0.00392377, -0.01647633)
+    p_big_inner = tl.fma(yb, p_big_inner, 0.02635537)
+    p_big_inner = tl.fma(yb, p_big_inner, -0.02057706)
+    p_big_inner = tl.fma(yb, p_big_inner, 0.00916281)
+    p_big_inner = tl.fma(yb, p_big_inner, -0.00157565)
+    p_big_inner = tl.fma(yb, p_big_inner, 0.00225319)
+    p_big_inner = tl.fma(yb, p_big_inner, 0.01328592)
+    p_big = tl.fma(yb, p_big_inner, 0.39894228)
+
+    res_big = tl.exp(safe_ax) * p_big * tl.rsqrt(safe_ax)
+
+    result = tl.where(use_small, res_small, res_big)
+
+    tl.store(out_ptr + offsets, result, mask=mask)
 
 
 def _launch_special_modified_bessel_i0(out: torch.Tensor, x: torch.Tensor):
