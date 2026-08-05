@@ -430,6 +430,7 @@ _FULL_CONFIG = (
     ("ge.Scalar", ge_scalar),
     ("ge.Tensor", ge),
     ("ge_.Tensor", ge_),
+    ("ge_.Scalar", ge_),
     ("gelu", gelu),
     ("gelu_", gelu_),
     ("gelu_backward", gelu_backward),
