@@ -2493,7 +2493,7 @@ ops:
     stages:
       - alpha: '5.4'
   - id: expand_copy
-    description: Returns a new tensor that is a copy of the input expanded to the specified size, broadcasting singleton dimensions.
+    description: Returns a copy of the input tensor expanded by broadcasting singleton dimensions.
     for:
       - expand_copy
     labels:
