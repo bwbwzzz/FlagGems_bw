@@ -1650,6 +1650,30 @@ ops:
       - NeuralNetwork
     stages:
       - alpha: '5.4'
+  - id: cholesky_solve
+    description: |-
+      Solves a system of linear equations with a symmetric positive-definite matrix
+      using its Cholesky factorization.
+    for:
+      - cholesky_solve
+    labels:
+      - aten
+    kind:
+      - BLAS
+    stages:
+      - alpha: '5.4'
+  - id: cholesky_solve_out
+    description: |-
+      Solves a system of linear equations with a symmetric positive-definite matrix
+      using its Cholesky factorization.
+    for:
+      - cholesky_solve.out
+    labels:
+      - aten
+    kind:
+      - BLAS
+    stages:
+      - alpha: '5.4'
   - id: chunk
     description: Split a tensor into a specific number of chunks along a given dimension.
     for:
@@ -3226,17 +3250,6 @@ ops:
       - Math
     stages:
       - alpha: '5.4'
-  - id: flatten
-    description: Flatten a contiguous range of dimensions into a single dimension (view operation).
-    for:
-      - flatten.using_ints
-    labels:
-      - aten
-      - KernelGen
-    kind:
-      - Math
-    stages:
-      - alpha: '5.4'
   - id: flash_attention_backward
     description: |
       Backward kernel for FlashAttention, computing gradients of queries, keys, values, and attention outputs efficiently.
@@ -3310,6 +3323,17 @@ ops:
       - NeuralNetwork
     stages:
       - alpha: '5.3'
+  - id: flatten
+    description: Flatten a contiguous range of dimensions into a single dimension (view operation).
+    for:
+      - flatten.using_ints
+    labels:
+      - aten
+      - KernelGen
+    kind:
+      - Math
+    stages:
+      - alpha: '5.4'
   - id: flip
     description: Reverse the order of an n-D tensor along given axis in dims.
     for:
@@ -3853,16 +3877,6 @@ ops:
       - Math
     stages:
       - beta: '5.3'
-  - id: gcd_out
-    description: A variant of `gcd()` that allows the output to be assigned to the specified `out`.
-    for:
-      - gcd.out
-    labels:
-      - aten
-    kind:
-      - Math
-    stages:
-      - beta: '5.3'
   - id: gcd_
     description: |
       Computes the element-wise greatest common divisor (GCD) of `input` and `other` in-place.
@@ -3875,6 +3889,16 @@ ops:
       - Math
     stages:
       - alpha: '5.4'
+  - id: gcd_out
+    description: A variant of `gcd()` that allows the output to be assigned to the specified `out`.
+    for:
+      - gcd.out
+    labels:
+      - aten
+    kind:
+      - Math
+    stages:
+      - beta: '5.3'
   - id: ge
     description: Computes `input` is greater or equal to `other` element-wise.
     for:
@@ -4938,32 +4962,10 @@ ops:
       - Math
     stages:
       - alpha: '5.4'
-  - id: less_scalar_
-    description: The scalar version of `less_()`.
-    for:
-      - less_.Scalar
-    labels:
-      - aten
-      - KernelGen
-    kind:
-      - Math
-    stages:
-      - alpha: '5.4'
   - id: less_equal
     description: Computes element-wise less-than-or-equal-to comparison.
     for:
       - less_equal.Tensor
-    labels:
-      - aten
-      - KernelGen
-    kind:
-      - Math
-    stages:
-      - alpha: '5.4'
-  - id: less_equal_scalar
-    description: Computes less-than-or-equal-to comparison with a scalar.
-    for:
-      - less_equal.Scalar
     labels:
       - aten
       - KernelGen
@@ -4982,10 +4984,32 @@ ops:
       - Math
     stages:
       - alpha: '5.4'
+  - id: less_equal_scalar
+    description: Computes less-than-or-equal-to comparison with a scalar.
+    for:
+      - less_equal.Scalar
+    labels:
+      - aten
+      - KernelGen
+    kind:
+      - Math
+    stages:
+      - alpha: '5.4'
   - id: less_equal_scalar_
     description: The scalar version of `less_equal_()`.
     for:
       - less_equal_.Scalar
+    labels:
+      - aten
+      - KernelGen
+    kind:
+      - Math
+    stages:
+      - alpha: '5.4'
+  - id: less_scalar_
+    description: The scalar version of `less_()`.
+    for:
+      - less_.Scalar
     labels:
       - aten
       - KernelGen
@@ -5029,18 +5053,6 @@ ops:
       - Tensor
     stages:
       - alpha: '5.4'
-  - id: lift_out
-    description: |
-      Out-of-place variant of lift that copies self to the out tensor.
-    for:
-      - lift_out
-    labels:
-      - aten
-      - KernelGen
-    kind:
-      - Tensor
-    stages:
-      - alpha: '5.4'
   - id: lift_fresh_copy
     description: |
       Creates a new, independent copy of a tensor within a compiled graph.
@@ -5054,15 +5066,16 @@ ops:
     stages:
       - beta: '5.0'
       - stable: '5.3'
-  - id: linalg_ldl_solve
-    description: Triton kernel implementation for linalg_ldl_solve.
+  - id: lift_out
+    description: |
+      Out-of-place variant of lift that copies self to the out tensor.
     for:
-      - linalg_ldl_solve
+      - lift_out
     labels:
       - aten
       - KernelGen
     kind:
-      - LinearAlg
+      - Tensor
     stages:
       - alpha: '5.4'
   - id: linalg_cholesky
@@ -5076,30 +5089,6 @@ ops:
       - KernelGen
     kind:
       - LinearAlg
-      - BLAS
-    stages:
-      - alpha: '5.4'
-  - id: cholesky_solve
-    description: |-
-      Solves a system of linear equations with a symmetric positive-definite matrix
-      using its Cholesky factorization.
-    for:
-      - cholesky_solve
-    labels:
-      - aten
-    kind:
-      - BLAS
-    stages:
-      - alpha: '5.4'
-  - id: cholesky_solve_out
-    description: |-
-      Solves a system of linear equations with a symmetric positive-definite matrix
-      using its Cholesky factorization.
-    for:
-      - cholesky_solve.out
-    labels:
-      - aten
-    kind:
       - BLAS
     stages:
       - alpha: '5.4'
@@ -5136,6 +5125,17 @@ ops:
       - KernelGen
     kind:
       - Math
+    stages:
+      - alpha: '5.4'
+  - id: linalg_ldl_solve
+    description: Triton kernel implementation for linalg_ldl_solve.
+    for:
+      - linalg_ldl_solve
+    labels:
+      - aten
+      - KernelGen
+    kind:
+      - LinearAlg
     stages:
       - alpha: '5.4'
   - id: linalg_lu_factor
@@ -5397,6 +5397,19 @@ ops:
     stages:
       - alpha: '2.0'
       - stable: '3.0'
+  - id: logaddexp
+    description: Computes the element-wise logarithm of the sum of the exponentials of two input tensors.
+    for:
+      - logaddexp
+    labels:
+      - aten
+      - pointwise
+      - KernelGen
+    kind:
+      - Math
+    stages:
+      - beta: '5.0'
+      - stable: '5.3'
   - id: logaddexp2
     description: Computes the element-wise base-2 logarithm of the sum of base-2 exponentiations of two input tensors.
     for:
@@ -5419,107 +5432,6 @@ ops:
       - Math
     stages:
       - beta: '5.4'
-  - id: unsafe_chunk
-    description: Split a tensor into a specified number of chunks along a given dimension.
-    for:
-      - unsafe_chunk
-    labels:
-      - aten
-      - KernelGen
-    kind:
-      - Math
-    stages:
-      - beta: '5.4'
-  - id: view_as_complex
-    description: View a real tensor with last dim=2 as a complex tensor.
-    for:
-      - view_as_complex
-    labels:
-      - aten
-      - KernelGen
-    kind:
-      - Math
-    stages:
-      - alpha: '5.4'
-  - id: xlogy
-    description: Computes `input * log(other)` element-wise, returning zero where `input` is zero (following PyTorch's `xlogy` semantics).
-    for:
-      - xlogy.Tensor
-    labels:
-      - aten
-      - pointwise
-    kind:
-      - Math
-    stages:
-      - beta: '5.4'
-  - id: xlogy_out
-    description: A variant of `xlogy` that allows the output to be assigned to an `out` tensor.
-    for:
-      - xlogy.OutTensor
-    labels:
-      - aten
-      - pointwise
-    kind:
-      - Math
-    stages:
-      - beta: '5.4'
-  - id: xlogy_tensor_scalar
-    description: A variant of `xlogy` where `other` is a scalar.
-    for:
-      - xlogy.Scalar_Other
-    labels:
-      - aten
-      - pointwise
-    kind:
-      - Math
-    stages:
-      - beta: '5.4'
-  - id: xlogy_tensor_scalar_out
-    description: A variant of `xlogy` where `other` is a scalar and the output is assigned to an `out` tensor.
-    for:
-      - xlogy.OutScalar_Other
-    labels:
-      - aten
-      - pointwise
-    kind:
-      - Math
-    stages:
-      - beta: '5.4'
-  - id: xlogy_scalar_tensor
-    description: A variant of `xlogy` where `input` is a scalar.
-    for:
-      - xlogy.Scalar_Self
-    labels:
-      - aten
-      - pointwise
-    kind:
-      - Math
-    stages:
-      - beta: '5.4'
-  - id: xlogy_scalar_tensor_out
-    description: A variant of `xlogy` where `input` is a scalar and the output is assigned to an `out` tensor.
-    for:
-      - xlogy.OutScalar_Self
-    labels:
-      - aten
-      - pointwise
-    kind:
-      - Math
-    stages:
-      - beta: '5.4'
-  - id: logaddexp
-    description: Computes the element-wise logarithm of the sum of the exponentials of two input tensors.
-    for:
-      - logaddexp
-    labels:
-      - aten
-      - pointwise
-      - KernelGen
-    kind:
-      - Math
-    stages:
-      - beta: '5.0'
-      - stable: '5.3'
   - id: logaddexp_out
     description: A variant of `logaddexp` that allows the output to be assigned to an `out` tensor.
     for:
@@ -7004,6 +6916,17 @@ ops:
       - Math
     stages:
       - alpha: '5.4'
+  - id: pdist_forward
+    description: Computes the pairwise distance between rows of a matrix.
+    for:
+      - _pdist_forward
+    labels:
+      - aten
+      - KernelGen
+    kind:
+      - Math
+    stages:
+      - alpha: '5.4'
   - id: per_token_group_quant_fp8
     description: |
       Function to perform per-token-group quantization on an input tensor `x`.
@@ -7019,17 +6942,6 @@ ops:
     stages:
       - alpha: '4.2'
       - beta: '5.3'
-  - id: pdist_forward
-    description: Computes the pairwise distance between rows of a matrix.
-    for:
-      - _pdist_forward
-    labels:
-      - aten
-      - KernelGen
-    kind:
-      - Math
-    stages:
-      - alpha: '5.4'
   - id: permute_copy
     description: Creates and returns a copy of x with permuted dimensions.
     for:
@@ -8008,6 +7920,18 @@ ops:
       - NeuralNetwork
     stages:
       - alpha: '5.3'
+  - id: scalar_tensor
+    description: |
+      Creates a 0-dimensional (scalar) tensor from a Python numeric value.
+      The tensor's dtype can be specified, otherwise inferred from the input value.
+    for:
+      - scalar_tensor
+    labels:
+      - aten
+    kind:
+      - Tensor
+    stages:
+      - alpha: '5.4'
   - id: scaled_dot_product_attention
     description: |
       Computes scaled dot product attention on query, key and value tensors,
@@ -8423,18 +8347,6 @@ ops:
       - KernelGen
     kind:
       - Math
-    stages:
-      - alpha: '5.4'
-  - id: scalar_tensor
-    description: |
-      Creates a 0-dimensional (scalar) tensor from a Python numeric value.
-      The tensor's dtype can be specified, otherwise inferred from the input value.
-    for:
-      - scalar_tensor
-    labels:
-      - aten
-    kind:
-      - Tensor
     stages:
       - alpha: '5.4'
   - id: sigmoid
@@ -8924,19 +8836,6 @@ ops:
       - KernelGen
     kind:
       - BLAS
-  - id: special_bessel_j1
-    description: |
-      Computes the Bessel function of the first kind of order 1 for each element of input.
-    for:
-      - special_bessel_j1
-    labels:
-      - aten
-      - KernelGen
-      - pointwise
-    kind:
-      - Math
-    stages:
-      - alpha: '5.4'
   - id: special_airy_ai
     description: |
       Computes the Airy function Ai(x) for each element of the input tensor.
@@ -8959,6 +8858,19 @@ ops:
       - aten
       - pointwise
       - KernelGen
+    kind:
+      - Math
+    stages:
+      - alpha: '5.4'
+  - id: special_bessel_j1
+    description: |
+      Computes the Bessel function of the first kind of order 1 for each element of input.
+    for:
+      - special_bessel_j1
+    labels:
+      - aten
+      - KernelGen
+      - pointwise
     kind:
       - Math
     stages:
@@ -9016,26 +8928,24 @@ ops:
       - Math
     stages:
       - alpha: '5.4'
-  - id: special_scaled_modified_bessel_k1
-    description: |
-      Computes the scaled modified Bessel function of the first kind
-      of order 1 (scaled K_1(x) = exp(x)*K_1(x)) for each element in the input tensor.
-    for:
-      - special.scaled_modified_bessel_k1
-      - special.scaled_modified_bessel_k1.out
-    labels:
-      - aten
-      - pointwise
-    kind:
-      - Math
-    stages:
-      - alpha: '5.4'
   - id: special_digamma
     description: |
       Computes the digamma function (logarithmic derivative of the gamma function).
       Alias for digamma; delegates to the digamma kernel.
     for:
       - special_digamma
+    labels:
+      - aten
+      - pointwise
+      - KernelGen
+    kind:
+      - Math
+    stages:
+      - alpha: '5.4'
+  - id: special_erfc
+    description: Computes the complementary error function.
+    for:
+      - special_erfc
     labels:
       - aten
       - pointwise
@@ -9076,18 +8986,6 @@ ops:
       - special_erfinv_
     labels:
       - aten
-      - KernelGen
-    kind:
-      - Math
-    stages:
-      - alpha: '5.4'
-  - id: special_erfc
-    description: Computes the complementary error function.
-    for:
-      - special_erfc
-    labels:
-      - aten
-      - pointwise
       - KernelGen
     kind:
       - Math
@@ -9220,11 +9118,6 @@ ops:
       - Math
     stages:
       - alpha: '5.4'
-  - id: special_log_softmax
-    description: |
-      Applies the log of the softmax function along a given dimension.
-    for:
-      - special.log_softmax
   - id: special_log1p
     description: Computes log(1 + x) for each element of the input tensor.
     for:
@@ -9246,6 +9139,24 @@ ops:
       - KernelGen
     kind:
       - Math
+    stages:
+      - alpha: '5.4'
+  - id: special_log_softmax
+    description: |
+      Applies the log of the softmax function along a given dimension.
+    for:
+      - special.log_softmax
+  - id: special_logsumexp
+    description: |
+      Computes the natural logarithm of the sum of exponentials of each row
+      of the input tensor in the given dimension `dim`.
+    for:
+      - special.logsumexp
+    labels:
+      - aten
+      - KernelGen
+    kind:
+      - Reduction
     stages:
       - alpha: '5.4'
   - id: special_modified_bessel_k0
@@ -9317,6 +9228,20 @@ ops:
       - Math
     stages:
       - alpha: '5.4'
+  - id: special_scaled_modified_bessel_k1
+    description: |
+      Computes the scaled modified Bessel function of the first kind
+      of order 1 (scaled K_1(x) = exp(x)*K_1(x)) for each element in the input tensor.
+    for:
+      - special.scaled_modified_bessel_k1
+      - special.scaled_modified_bessel_k1.out
+    labels:
+      - aten
+      - pointwise
+    kind:
+      - Math
+    stages:
+      - alpha: '5.4'
   - id: special_shifted_chebyshev_polynomial_u
     description: |
       Computes the shifted Chebyshev polynomial of the second kind U_n^*(x)
@@ -9340,18 +9265,6 @@ ops:
       - KernelGen
     kind:
       - Math
-  - id: special_shifted_chebyshev_polynomial_w
-    kind:
-      - Math
-    labels:
-      - aten
-      - KernelGen
-    description: |
-      Computes the shifted Chebyshev polynomial of the second kind W_n(x).
-    for:
-      - special.shifted_chebyshev_polynomial_w
-    stages:
-      - alpha: '5.4'
   - id: special_shifted_chebyshev_polynomial_v
     description: |
       Computes the shifted Chebyshev polynomial of the third kind V_n^*(x).
@@ -9363,6 +9276,18 @@ ops:
       - KernelGen
     kind:
       - Math
+    stages:
+      - alpha: '5.4'
+  - id: special_shifted_chebyshev_polynomial_w
+    kind:
+      - Math
+    labels:
+      - aten
+      - KernelGen
+    description: |
+      Computes the shifted Chebyshev polynomial of the second kind W_n(x).
+    for:
+      - special.shifted_chebyshev_polynomial_w
     stages:
       - alpha: '5.4'
   - id: special_sinc
@@ -9386,19 +9311,6 @@ ops:
       - KernelGen
     kind:
       - Math
-    stages:
-      - alpha: '5.4'
-  - id: special_logsumexp
-    description: |
-      Computes the natural logarithm of the sum of exponentials of each row
-      of the input tensor in the given dimension `dim`.
-    for:
-      - special.logsumexp
-    labels:
-      - aten
-      - KernelGen
-    kind:
-      - Reduction
     stages:
       - alpha: '5.4'
   - id: split_with_sizes_copy
@@ -10164,28 +10076,17 @@ ops:
       - NeuralNetwork
     stages:
       - beta: '5.3'
-  - id: unsqueeze
-    description: Returns a new tensor with a dimension of size one inserted at the specified position.
+  - id: unsafe_chunk
+    description: Split a tensor into a specified number of chunks along a given dimension.
     for:
-      - unsqueeze
+      - unsafe_chunk
     labels:
       - aten
       - KernelGen
     kind:
-      - Tensor
+      - Math
     stages:
-      - alpha: '5.4'
-  - id: unsqueeze_
-    description: In-place version of `unsqueeze()`.
-    for:
-      - unsqueeze_
-    labels:
-      - aten
-      - KernelGen
-    kind:
-      - Tensor
-    stages:
-      - alpha: '5.4'
+      - beta: '5.4'
   - id: unsafe_masked_index
     description: Gathers elements from self at given indices where mask is True, filling unmasked positions with a scalar value.
     for:
@@ -10218,6 +10119,28 @@ ops:
       if the reshape is valid.
     for:
       - _unsafe_view
+    labels:
+      - aten
+      - KernelGen
+    kind:
+      - Tensor
+    stages:
+      - alpha: '5.4'
+  - id: unsqueeze
+    description: Returns a new tensor with a dimension of size one inserted at the specified position.
+    for:
+      - unsqueeze
+    labels:
+      - aten
+      - KernelGen
+    kind:
+      - Tensor
+    stages:
+      - alpha: '5.4'
+  - id: unsqueeze_
+    description: In-place version of `unsqueeze()`.
+    for:
+      - unsqueeze_
     labels:
       - aten
       - KernelGen
@@ -10458,6 +10381,17 @@ ops:
       - NeuralNetwork
     stages:
       - stable: '2.0'
+  - id: view_as_complex
+    description: View a real tensor with last dim=2 as a complex tensor.
+    for:
+      - view_as_complex
+    labels:
+      - aten
+      - KernelGen
+    kind:
+      - Math
+    stages:
+      - alpha: '5.4'
   - id: view_copy
     description: |
       Returns a copy of the tensor with the specified shape.
@@ -10557,6 +10491,89 @@ ops:
     stages:
       - alpha: '2.1'
       - stable: '2.2'
+  - id: xlogy
+    description: Computes `input * log(other)` element-wise, returning zero where `input` is zero (following PyTorch's `xlogy` semantics).
+    for:
+      - xlogy.Tensor
+    labels:
+      - aten
+      - pointwise
+    kind:
+      - Math
+    stages:
+      - beta: '5.4'
+  - id: xlogy_out
+    description: A variant of `xlogy` that allows the output to be assigned to an `out` tensor.
+    for:
+      - xlogy.OutTensor
+    labels:
+      - aten
+      - pointwise
+    kind:
+      - Math
+    stages:
+      - beta: '5.4'
+  - id: xlogy_scalar_tensor
+    description: A variant of `xlogy` where `input` is a scalar.
+    for:
+      - xlogy.Scalar_Self
+    labels:
+      - aten
+      - pointwise
+    kind:
+      - Math
+    stages:
+      - beta: '5.4'
+  - id: xlogy_scalar_tensor_out
+    description: A variant of `xlogy` where `input` is a scalar and the output is assigned to an `out` tensor.
+    for:
+      - xlogy.OutScalar_Self
+    labels:
+      - aten
+      - pointwise
+    kind:
+      - Math
+    stages:
+      - beta: '5.4'
+  - id: xlogy_tensor_scalar
+    description: A variant of `xlogy` where `other` is a scalar.
+    for:
+      - xlogy.Scalar_Other
+    labels:
+      - aten
+      - pointwise
+    kind:
+      - Math
+    stages:
+      - beta: '5.4'
+  - id: xlogy_tensor_scalar_out
+    description: A variant of `xlogy` where `other` is a scalar and the output is assigned to an `out` tensor.
+    for:
+      - xlogy.OutScalar_Other
+    labels:
+      - aten
+      - pointwise
+    kind:
+      - Math
+    stages:
+      - beta: '5.4'
+  - id: xor__
+    description: |
+      Computes the bitwise XOR of input tensors or a tensor and a scalar.
+    for:
+      - __xor__
+      - __xor__.Tensor
+      - __xor__.Scalar
+      - __ixor__.Tensor
+      - __ixor__.Scalar
+    labels:
+      - aten
+      - pointwise
+      - KernelGen
+    kind:
+      - Math
+    stages:
+      - alpha: '5.4'
   - id: zero
     description: Fills tensor with zeros.
     for:
@@ -10591,23 +10608,6 @@ ops:
     stages:
       - beta: '5.0'
       - stable: '5.3'
-  - id: xor__
-    description: |
-      Computes the bitwise XOR of input tensors or a tensor and a scalar.
-    for:
-      - __xor__
-      - __xor__.Tensor
-      - __xor__.Scalar
-      - __ixor__.Tensor
-      - __ixor__.Scalar
-    labels:
-      - aten
-      - pointwise
-      - KernelGen
-    kind:
-      - Math
-    stages:
-      - alpha: '5.4'
   - id: zeros
     description: |
       Returns a tensor filled with the scalar value 0, with the shape defined by
