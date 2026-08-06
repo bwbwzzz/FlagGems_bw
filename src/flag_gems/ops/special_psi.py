@@ -11,7 +11,7 @@ logger = logging.getLogger(__name__)
 
 @pointwise_dynamic(promotion_methods=[(0, "INT_TO_FLOAT")])
 @triton.jit
-def digamma_kernel(x):
+def special_psi_kernel(x):
     # Compute in float32 for better precision
     x_f32 = x.to(tl.float32)
 
