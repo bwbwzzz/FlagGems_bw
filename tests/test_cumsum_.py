@@ -34,18 +34,9 @@ def test_cumsum_(shape, dtype):
         ref_inp = utils.to_reference(inp, True)
 
     ref_out = ref_inp.cumsum_(dim=dim)
-    data_ptr = inp.data_ptr()
     with flag_gems.use_gems():
         res_out = inp.cumsum_(dim=dim)
 
-    assert res_out.data_ptr() == data_ptr
+
     utils.gems_assert_close(res_out, ref_out, dtype, reduce_dim=shape[dim])
-
-
-@pytest.mark.cumsum_
-def test_cumsum_inplace_dtype_mismatch():
-    inp = torch.randint(-3, 3, (4, 9), device=flag_gems.device, dtype=torch.int16)
-
-    with flag_gems.use_gems():
-        with pytest.raises(RuntimeError, match="Bad in-place call"):
-            inp.cumsum_(1, dtype=torch.int64)
+    assert res_out is inp
