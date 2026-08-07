@@ -21,4 +21,4 @@ def test_special_log_ndtr(shape, dtype):
 
     # Allow for numerical differences between our erf-based implementation
     # and PyTorch's implementation (which uses a different algorithm)
-    utils.gems_assert_close(res_out, ref_out, dtype, atol=0.2)
+    utils.gems_assert_close(res_out, ref_out, dtype)
