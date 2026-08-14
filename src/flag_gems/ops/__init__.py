@@ -171,6 +171,7 @@ from flag_gems.ops.bernoulli_ import bernoulli_
 from flag_gems.ops.binary_cross_entropy import (
     binary_cross_entropy,
     binary_cross_entropy_out,
+)
 from flag_gems.ops.binary_cross_entropy_backward import binary_cross_entropy_backward
 from flag_gems.ops.binary_cross_entropy_with_logits import (
     binary_cross_entropy_with_logits,
