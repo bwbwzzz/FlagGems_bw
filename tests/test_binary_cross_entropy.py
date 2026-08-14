@@ -159,9 +159,7 @@ def test_binary_cross_entropy_out(shape, dtype, reduction, with_weight):
 def test_binary_cross_entropy_boundary(dtype, reduction, with_weight):
     # PyTorch clamps the internal log to a lower bound of -100, so input==0 with
     # target==1 (and input==1 with target==0) yields exactly 100 rather than inf.
-    inp = torch.tensor(
-        [0.0, 1.0, 0.0, 1.0, 0.5], dtype=dtype, device=flag_gems.device
-    )
+    inp = torch.tensor([0.0, 1.0, 0.0, 1.0, 0.5], dtype=dtype, device=flag_gems.device)
     target = torch.tensor(
         [1.0, 0.0, 0.0, 1.0, 1.0], dtype=dtype, device=flag_gems.device
     )
