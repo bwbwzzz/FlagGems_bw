@@ -7,31 +7,27 @@ logger = logging.getLogger(__name__)
 
 
 def t_(inp: torch.Tensor) -> torch.Tensor:
-    """In-place transpose of the last two dimensions.
+    """In-place transpose of a tensor with at most 2 dimensions.
 
-    For 1D tensors, returns self unchanged.
-    For 2D tensors, transposes the matrix (swap shape and stride).
+    ``t_`` is a pure view operation: it only swaps the shape and stride
+    metadata of ``inp`` without moving any data, matching the semantics of
+    ``torch.Tensor.t_``. For 0D/1D tensors it is a no-op; for 2D tensors it
+    swaps the two dimensions (and their strides) in place, so the result is a
+    transposed view over the original storage.
     """
     logger.debug("GEMS T_")
     dim = inp.dim()
-    if dim == 0:
-        # Scalar - no-op
+    if dim < 2:
+        # 0D scalar / 1D tensor - no-op, same as torch.Tensor.t_
         return inp
-    elif dim == 1:
-        # 1D tensor - no-op
-        return inp
-    elif dim == 2:
-        # 2D tensor - in-place transpose by swapping shape and stride
-        M, N = inp.shape
-        if M == N:
-            # Square matrix - can swap stride in-place
-            s0, s1 = inp.stride()
-            inp.as_strided_([N, M], [s1, s0])
-        else:
-            # Non-square matrix - need to use transpose and set_
-            new_data = inp.transpose(0, 1).contiguous()
-            inp.set_(new_data.storage())
-            inp.as_strided_(new_data.shape, new_data.stride())
-        return inp
-    else:
+    if dim > 2:
         raise RuntimeError("t_ expects a tensor with <= 2 dimensions")
+
+    # 2D tensor - transpose in place by swapping shape and stride only.
+    # This works for both square and non-square matrices and preserves the
+    # underlying storage, producing a (generally non-contiguous) view exactly
+    # like the native aten::t_ operator.
+    M, N = inp.shape
+    s0, s1 = inp.stride()
+    inp.as_strided_([N, M], [s1, s0])
+    return inp
