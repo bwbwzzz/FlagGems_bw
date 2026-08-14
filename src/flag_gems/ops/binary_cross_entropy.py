@@ -10,7 +10,7 @@ logger = logging.getLogger(__name__)
 
 @triton.jit
 def _binary_cross_entropy_elementwise_kernel(
-    x_ptr, y_ptr, out_ptr, n_elements, BLOCK_SIZE: tl.constexpr, eps: tl.constexpr
+    x_ptr, y_ptr, out_ptr, n_elements, BLOCK_SIZE: tl.constexpr
 ):
     pid = tl.program_id(axis=0)
     block_start = pid * BLOCK_SIZE
@@ -23,22 +23,56 @@ def _binary_cross_entropy_elementwise_kernel(
     xf = x.to(tl.float32)
     yf = y.to(tl.float32)
 
-    # Clamp input to avoid log(0)
-    x_clamp = tl.maximum(tl.minimum(xf, 1.0 - eps), eps)
-    one_minus_x = 1.0 - x_clamp
     one_minus_y = 1.0 - yf
 
+    # PyTorch clamps the log values to a lower bound of -100 (not the input),
+    # so input==0/1 with the opposite target yields exactly 100.
+    log_x = tl.maximum(tl.log(xf), -100.0)
+    log_one_minus_x = tl.maximum(tl.log(1.0 - xf), -100.0)
+
     # BCE: -(target * log(input) + (1 - target) * log(1 - input))
-    term1 = yf * tl.log(x_clamp)
-    term2 = one_minus_y * tl.log(one_minus_x)
+    term1 = yf * log_x
+    term2 = one_minus_y * log_one_minus_x
     vals = -(term1 + term2)
 
     tl.store(out_ptr + offsets, vals, mask=mask)
 
 
 @triton.jit
+def _binary_cross_entropy_weighted_elementwise_kernel(
+    x_ptr, y_ptr, w_ptr, out_ptr, n_elements, BLOCK_SIZE: tl.constexpr
+):
+    pid = tl.program_id(axis=0)
+    block_start = pid * BLOCK_SIZE
+    offsets = block_start + tl.arange(0, BLOCK_SIZE)
+    mask = offsets < n_elements
+
+    x = tl.load(x_ptr + offsets, mask=mask, other=0.0)
+    y = tl.load(y_ptr + offsets, mask=mask, other=0.0)
+    w = tl.load(w_ptr + offsets, mask=mask, other=0.0)
+
+    xf = x.to(tl.float32)
+    yf = y.to(tl.float32)
+    wf = w.to(tl.float32)
+
+    one_minus_y = 1.0 - yf
+
+    # PyTorch clamps the log values to a lower bound of -100 (not the input),
+    # so input==0/1 with the opposite target yields exactly 100.
+    log_x = tl.maximum(tl.log(xf), -100.0)
+    log_one_minus_x = tl.maximum(tl.log(1.0 - xf), -100.0)
+
+    # BCE: -(target * log(input) + (1 - target) * log(1 - input))
+    term1 = yf * log_x
+    term2 = one_minus_y * log_one_minus_x
+    vals = -(term1 + term2) * wf
+
+    tl.store(out_ptr + offsets, vals, mask=mask)
+
+
+@triton.jit
 def _binary_cross_entropy_sum_kernel(
-    x_ptr, y_ptr, out_ptr, n_elements, BLOCK_SIZE: tl.constexpr, eps: tl.constexpr
+    x_ptr, y_ptr, out_ptr, n_elements, BLOCK_SIZE: tl.constexpr
 ):
     pid = tl.program_id(axis=0)
     block_start = pid * BLOCK_SIZE
@@ -51,14 +85,16 @@ def _binary_cross_entropy_sum_kernel(
     xf = x.to(tl.float32)
     yf = y.to(tl.float32)
 
-    # Clamp input to avoid log(0)
-    x_clamp = tl.maximum(tl.minimum(xf, 1.0 - eps), eps)
-    one_minus_x = 1.0 - x_clamp
     one_minus_y = 1.0 - yf
 
+    # PyTorch clamps the log values to a lower bound of -100 (not the input),
+    # so input==0/1 with the opposite target yields exactly 100.
+    log_x = tl.maximum(tl.log(xf), -100.0)
+    log_one_minus_x = tl.maximum(tl.log(1.0 - xf), -100.0)
+
     # BCE: -(target * log(input) + (1 - target) * log(1 - input))
-    term1 = yf * tl.log(x_clamp)
-    term2 = one_minus_y * tl.log(one_minus_x)
+    term1 = yf * log_x
+    term2 = one_minus_y * log_one_minus_x
     vals = -(term1 + term2)
     vals = tl.where(mask, vals, 0.0)
 
@@ -74,7 +110,6 @@ def _binary_cross_entropy_weighted_sum_kernel(
     out_ptr,
     n_elements,
     BLOCK_SIZE: tl.constexpr,
-    eps: tl.constexpr,
 ):
     pid = tl.program_id(axis=0)
     block_start = pid * BLOCK_SIZE
@@ -89,14 +124,16 @@ def _binary_cross_entropy_weighted_sum_kernel(
     yf = y.to(tl.float32)
     wf = w.to(tl.float32)
 
-    # Clamp input to avoid log(0)
-    x_clamp = tl.maximum(tl.minimum(xf, 1.0 - eps), eps)
-    one_minus_x = 1.0 - x_clamp
     one_minus_y = 1.0 - yf
 
+    # PyTorch clamps the log values to a lower bound of -100 (not the input),
+    # so input==0/1 with the opposite target yields exactly 100.
+    log_x = tl.maximum(tl.log(xf), -100.0)
+    log_one_minus_x = tl.maximum(tl.log(1.0 - xf), -100.0)
+
     # BCE: -(target * log(input) + (1 - target) * log(1 - input))
-    term1 = yf * tl.log(x_clamp)
-    term2 = one_minus_y * tl.log(one_minus_x)
+    term1 = yf * log_x
+    term2 = one_minus_y * log_one_minus_x
     vals = -(term1 + term2) * wf
     vals = tl.where(mask, vals, 0.0)
 
@@ -142,6 +179,75 @@ def _check_tensors(input: torch.Tensor, target: torch.Tensor):
     return input, target
 
 
+def _prepare_weight(weight, input, n_elements):
+    # Returns a contiguous, per-element weight tensor (or None).
+    if weight is None:
+        return None
+    weight = weight.contiguous()
+    if weight.numel() == 1:
+        # Scalar weight: broadcast to all elements.
+        return torch.full(
+            (n_elements,),
+            weight.item(),
+            device=input.device,
+            dtype=torch.float32,
+        )
+    if weight.numel() != n_elements:
+        raise AssertionError(
+            "binary_cross_entropy: weight must have same number "
+            "of elements as input and target, or be a scalar."
+        )
+    return weight
+
+
+def _bce_elementwise(input, target, weight, n_elements):
+    # Computes the unreduced BCE into a fresh (input-shaped) tensor.
+    result = torch.empty_like(input)
+    if n_elements == 0:
+        return result
+    # BLOCK_SIZE=1024 balances occupancy and register usage for H20
+    BLOCK_SIZE = 1024
+    grid = lambda meta: (triton.cdiv(n_elements, meta["BLOCK_SIZE"]),)
+    if weight is None:
+        _binary_cross_entropy_elementwise_kernel[grid](
+            input, target, result, n_elements, BLOCK_SIZE=BLOCK_SIZE
+        )
+    else:
+        _binary_cross_entropy_weighted_elementwise_kernel[grid](
+            input, target, weight, result, n_elements, BLOCK_SIZE=BLOCK_SIZE
+        )
+    return result
+
+
+def _bce_reduced(input, target, weight, red, n_elements):
+    # Computes the sum/mean BCE and returns a scalar tensor.
+    if n_elements == 0:
+        # Follow PyTorch behavior: sum -> 0, mean -> NaN
+        if red == 2:
+            return torch.zeros((), device=input.device, dtype=input.dtype)
+        return torch.full((), float("nan"), device=input.device, dtype=input.dtype)
+
+    tmp_sum = torch.zeros((), device=input.device, dtype=torch.float32)
+    # BLOCK_SIZE=1024 balances occupancy and register usage for H20
+    BLOCK_SIZE = 1024
+    grid = lambda meta: (triton.cdiv(n_elements, meta["BLOCK_SIZE"]),)
+
+    if weight is None:
+        _binary_cross_entropy_sum_kernel[grid](
+            input, target, tmp_sum, n_elements, BLOCK_SIZE=BLOCK_SIZE
+        )
+    else:
+        _binary_cross_entropy_weighted_sum_kernel[grid](
+            input, target, weight, tmp_sum, n_elements, BLOCK_SIZE=BLOCK_SIZE
+        )
+
+    if red == 2:
+        # sum
+        return tmp_sum.to(dtype=input.dtype)
+    # mean: always divide by n_elements per PyTorch convention
+    return (tmp_sum / float(n_elements)).to(dtype=input.dtype)
+
+
 def binary_cross_entropy(
     input: torch.Tensor,
     target: torch.Tensor,
@@ -152,84 +258,11 @@ def binary_cross_entropy(
     input, target = _check_tensors(input, target)
     red = _normalize_reduction(reduction)
     n_elements = input.numel()
-    eps = 1e-12
+    weight = _prepare_weight(weight, input, n_elements)
 
     if red == 0:
-        # reduction = 'none'
-        out = torch.empty_like(input)
-        if n_elements == 0:
-            return out
-        # BLOCK_SIZE=1024 balances occupancy and register usage for H20
-        BLOCK_SIZE = 1024
-        grid = lambda meta: (triton.cdiv(n_elements, meta["BLOCK_SIZE"]),)
-        _binary_cross_entropy_elementwise_kernel[grid](
-            input, target, out, n_elements, BLOCK_SIZE=BLOCK_SIZE, eps=eps
-        )
-        if weight is not None:
-            out = out * weight
-        return out
-    else:
-        # reduction = 'sum' or 'mean' (1=mean, 2=sum)
-        if n_elements == 0:
-            # Follow PyTorch behavior: sum -> 0, mean -> NaN
-            if red == 2:
-                return torch.zeros((), device=input.device, dtype=input.dtype)
-            else:
-                return torch.full(
-                    (), float("nan"), device=input.device, dtype=input.dtype
-                )
-
-        tmp_sum = torch.zeros((), device=input.device, dtype=torch.float32)
-        # BLOCK_SIZE=1024 balances occupancy and register usage for H20
-        BLOCK_SIZE = 1024
-        grid = lambda meta: (triton.cdiv(n_elements, meta["BLOCK_SIZE"]),)
-
-        if weight is not None:
-            weight = weight.contiguous()
-            if weight.numel() == 1:
-                # Scalar weight: apply to all elements
-                weight_tensor = torch.full(
-                    (n_elements,),
-                    weight.item(),
-                    device=input.device,
-                    dtype=torch.float32,
-                )
-                _binary_cross_entropy_weighted_sum_kernel[grid](
-                    input,
-                    target,
-                    weight_tensor,
-                    tmp_sum,
-                    n_elements,
-                    BLOCK_SIZE=BLOCK_SIZE,
-                    eps=eps,
-                )
-            else:
-                if weight.numel() != n_elements:
-                    raise AssertionError(
-                        "binary_cross_entropy: weight must have same number "
-                        "of elements as input and target, or be a scalar."
-                    )
-                _binary_cross_entropy_weighted_sum_kernel[grid](
-                    input,
-                    target,
-                    weight,
-                    tmp_sum,
-                    n_elements,
-                    BLOCK_SIZE=BLOCK_SIZE,
-                    eps=eps,
-                )
-        else:
-            _binary_cross_entropy_sum_kernel[grid](
-                input, target, tmp_sum, n_elements, BLOCK_SIZE=BLOCK_SIZE, eps=eps
-            )
-
-        if red == 2:
-            # sum
-            return tmp_sum.to(dtype=input.dtype)
-        else:
-            # mean: always divide by n_elements per PyTorch convention
-            mean_val = (tmp_sum / float(n_elements)).to(dtype=input.dtype)
-            return mean_val
+        return _bce_elementwise(input, target, weight, n_elements)
+    return _bce_reduced(input, target, weight, red, n_elements)
 
 
 def binary_cross_entropy_out(
@@ -243,10 +276,10 @@ def binary_cross_entropy_out(
     input, target = _check_tensors(input, target)
     red = _normalize_reduction(reduction)
     n_elements = input.numel()
-    eps = 1e-12
+    weight = _prepare_weight(weight, input, n_elements)
 
     if out is None:
-        # Allocate output based on reduction
+        # Allocate output based on reduction.
         if red == 0:
             out = torch.empty_like(input)
         else:
@@ -269,70 +302,11 @@ def binary_cross_entropy_out(
                 "binary_cross_entropy_out: out must be on the same device as input."
             )
 
+    # Always write the final result back into the caller-provided `out` buffer
+    # so the out-variant semantics hold (never rebind to a new tensor).
     if red == 0:
-        if n_elements > 0:
-            # BLOCK_SIZE=1024 balances occupancy and register usage for H20
-            BLOCK_SIZE = 1024
-            grid = lambda meta: (triton.cdiv(n_elements, meta["BLOCK_SIZE"]),)
-            _binary_cross_entropy_elementwise_kernel[grid](
-                input, target, out, n_elements, BLOCK_SIZE=BLOCK_SIZE, eps=eps
-            )
-            if weight is not None:
-                out = out * weight
-        return out
+        result = _bce_elementwise(input, target, weight, n_elements)
     else:
-        if n_elements == 0:
-            if red == 2:
-                out.fill_(0)
-            else:
-                out.fill_(float("nan"))
-            return out
-        tmp_sum = torch.zeros((), device=input.device, dtype=torch.float32)
-        # BLOCK_SIZE=1024 balances occupancy and register usage for H20
-        BLOCK_SIZE = 1024
-        grid = lambda meta: (triton.cdiv(n_elements, meta["BLOCK_SIZE"]),)
-
-        if weight is not None:
-            weight = weight.contiguous()
-            if weight.numel() == 1:
-                weight_tensor = torch.full(
-                    (n_elements,),
-                    weight.item(),
-                    device=input.device,
-                    dtype=torch.float32,
-                )
-                _binary_cross_entropy_weighted_sum_kernel[grid](
-                    input,
-                    target,
-                    weight_tensor,
-                    tmp_sum,
-                    n_elements,
-                    BLOCK_SIZE=BLOCK_SIZE,
-                    eps=eps,
-                )
-            else:
-                if weight.numel() != n_elements:
-                    raise AssertionError(
-                        "binary_cross_entropy: weight must have same number of elements as input and target."
-                    )
-                _binary_cross_entropy_weighted_sum_kernel[grid](
-                    input,
-                    target,
-                    weight,
-                    tmp_sum,
-                    n_elements,
-                    BLOCK_SIZE=BLOCK_SIZE,
-                    eps=eps,
-                )
-        else:
-            _binary_cross_entropy_sum_kernel[grid](
-                input, target, tmp_sum, n_elements, BLOCK_SIZE=BLOCK_SIZE, eps=eps
-            )
-
-        if red == 2:
-            out.fill_(tmp_sum.to(dtype=input.dtype))
-        else:
-            # mean: always divide by n_elements per PyTorch convention
-            mean_val = (tmp_sum / float(n_elements)).to(dtype=input.dtype)
-            out.fill_(mean_val)
-        return out
+        result = _bce_reduced(input, target, weight, red, n_elements)
+    out.copy_(result.reshape(out.shape))
+    return out
