@@ -78,6 +78,3 @@ def test_cudnn_convolution_transpose(
     )
 
     utils.gems_assert_close(res_out, ref_out, dtype)
-
-    if flag_gems.vendor_name == "mthreads" and dtype == torch.float16:
-        del os.environ["MUSA_ENABLE_SQMMA"]
