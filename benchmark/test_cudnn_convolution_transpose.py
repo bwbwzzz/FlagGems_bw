@@ -49,8 +49,8 @@ def cudnn_conv_transpose_input_fn(shape, dtype, device):
 
 
 class CudnnConvTransposeBenchmark(base.GenericBenchmark):
-    def set_more_shapes(self):
-        return [
+    def get_input_iter(self, dtype) -> Generator:
+        shapes = [
             # (N, C_in, H, W, C_out, kH, kW, stride, padding, groups)
             (1, 8, 32, 32, 8, 3, 3, 1, 0, 1),
             (2, 16, 24, 24, 16, 3, 3, 1, 1, 1),
@@ -58,8 +58,7 @@ class CudnnConvTransposeBenchmark(base.GenericBenchmark):
             (8, 64, 8, 8, 64, 3, 3, 1, 0, 1),
         ]
 
-    def get_input_iter(self, dtype) -> Generator:
-        for shape in self.shapes:
+        for shape in shapes:
             yield from cudnn_conv_transpose_input_fn(shape, dtype, self.device)
 
 
