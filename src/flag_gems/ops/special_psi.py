@@ -54,4 +54,4 @@ def special_psi_kernel(x):
 
 def special_psi(A):
     logger.debug("GEMS SPECIAL_PSI")
-    return digamma_kernel(A)
+    return special_psi_kernel(A)
