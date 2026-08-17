@@ -17,11 +17,11 @@ import logging
 
 import torch
 
+from flag_gems.ops._convolution_conv_transpose2d import conv_transpose2d_impl
 from flag_gems.ops.conv1d import conv1d
 from flag_gems.ops.conv2d import conv2d
 from flag_gems.ops.conv3d import conv3d
 from flag_gems.ops.conv_transpose1d import conv_transpose1d
-from flag_gems.ops.conv_transpose2d import conv_transpose2d
 
 logger = logging.getLogger(__name__)
 
@@ -76,7 +76,7 @@ def convolution(
                 dilation=_first(dilation, 1),
             )
         elif ndim == 2:
-            return conv_transpose2d(
+            return conv_transpose2d_impl(
                 input,
                 weight,
                 bias=bias,
