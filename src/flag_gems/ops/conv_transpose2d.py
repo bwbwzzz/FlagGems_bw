@@ -622,6 +622,134 @@ def _conv_transpose2d_stride2_pad1_3x3_kernel(
 
 @libentry()
 @triton.jit
+def _conv_transpose2d_residue_kernel(
+    input_pointer,
+    weight_pointer,
+    bias_pointer,
+    output_pointer,
+    batch_size: tl.constexpr,
+    input_channels: tl.constexpr,
+    input_height: tl.constexpr,
+    input_width: tl.constexpr,
+    output_channels: tl.constexpr,
+    output_height: tl.constexpr,
+    output_width: tl.constexpr,
+    weight_height: tl.constexpr,
+    weight_width: tl.constexpr,
+    output_channels_per_group: tl.constexpr,
+    input_channels_per_group: tl.constexpr,
+    stride_height: tl.constexpr,
+    stride_width: tl.constexpr,
+    padding_height: tl.constexpr,
+    padding_width: tl.constexpr,
+    dilation_height: tl.constexpr,
+    dilation_width: tl.constexpr,
+    has_bias: tl.constexpr,
+    n_subgrids: tl.constexpr,
+    BLOCK_NHW: tl.constexpr,
+    BLOCK_CI: tl.constexpr,
+    BLOCK_CO: tl.constexpr,
+):
+    pid_nhw = tl.program_id(0)
+    pid_co_in_group = tl.program_id(1)
+    pid_phase_group = tl.program_id(2)
+
+    pid_subgrid = pid_phase_group % n_subgrids
+    group = pid_phase_group // n_subgrids
+    output_residue_h = pid_subgrid // stride_width
+    output_residue_w = pid_subgrid % stride_width
+    compact_height: tl.constexpr = (output_height + stride_height - 1) // stride_height
+    compact_width: tl.constexpr = (output_width + stride_width - 1) // stride_width
+    compact_plane: tl.constexpr = compact_height * compact_width
+
+    compact_offsets = pid_nhw * BLOCK_NHW + tl.arange(0, BLOCK_NHW)
+    compact_nh = compact_offsets // compact_width
+    compact_h = compact_nh % compact_height
+    compact_w = compact_offsets % compact_width
+    n = compact_offsets // compact_plane
+    oh = compact_h * stride_height + output_residue_h
+    ow = compact_w * stride_width + output_residue_w
+
+    co_in_offsets = pid_co_in_group * BLOCK_CO + tl.arange(0, BLOCK_CO)
+    co_offsets = group * output_channels_per_group + co_in_offsets
+
+    accum = tl.zeros((BLOCK_NHW, BLOCK_CO), dtype=tl.float32)
+    if has_bias:
+        bias_values = tl.load(
+            bias_pointer + co_offsets,
+            mask=co_in_offsets < output_channels_per_group,
+            other=0.0,
+        ).to(tl.float32)
+        accum += bias_values[None, :]
+
+    ci_blocks: tl.constexpr = tl.cdiv(input_channels_per_group, BLOCK_CI)
+    height_residue = (output_residue_h + padding_height) % stride_height
+    width_residue = (output_residue_w + padding_width) % stride_width
+    for kh in range(weight_height):
+        kh_residue: tl.constexpr = (kh * dilation_height) % stride_height
+        if kh_residue == height_residue:
+            ih_unstrided = oh + padding_height - kh * dilation_height
+            ih = ih_unstrided // stride_height
+            valid_h = (n < batch_size) & (ih_unstrided >= 0) & (ih < input_height)
+            for kw in range(weight_width):
+                kw_residue: tl.constexpr = (kw * dilation_width) % stride_width
+                if kw_residue == width_residue:
+                    iw_unstrided = ow + padding_width - kw * dilation_width
+                    iw = iw_unstrided // stride_width
+                    valid_hw = (
+                        valid_h
+                        & (iw_unstrided >= 0)
+                        & (iw < input_width)
+                        & (oh < output_height)
+                        & (ow < output_width)
+                    )
+                    for ci_base in range(ci_blocks):
+                        ci_in_offsets = ci_base * BLOCK_CI + tl.arange(0, BLOCK_CI)
+                        ci_offsets = group * input_channels_per_group + ci_in_offsets
+                        input_offsets = (
+                            n[:, None] * input_channels + ci_offsets[None, :]
+                        ) * input_height
+                        input_offsets = (
+                            input_offsets + ih[:, None]
+                        ) * input_width + iw[:, None]
+                        weight_offsets = (
+                            ci_offsets[:, None] * output_channels_per_group
+                            + co_in_offsets[None, :]
+                        ) * weight_height
+                        weight_offsets = (weight_offsets + kh) * weight_width + kw
+                        input_mask = valid_hw[:, None] & (
+                            ci_in_offsets[None, :] < input_channels_per_group
+                        )
+                        weight_mask = (
+                            ci_in_offsets[:, None] < input_channels_per_group
+                        ) & (co_in_offsets[None, :] < output_channels_per_group)
+                        input_block = tl.load(
+                            input_pointer + input_offsets, mask=input_mask, other=0.0
+                        )
+                        weight_block = tl.load(
+                            weight_pointer + weight_offsets, mask=weight_mask, other=0.0
+                        )
+                        accum += tl.dot(
+                            input_block,
+                            weight_block,
+                            input_precision="tf32x3",
+                        )
+
+    output_offsets = n[:, None] * output_channels + co_offsets[None, :]
+    output_offsets = (output_offsets * output_height + oh[:, None]) * output_width
+    output_offsets = output_offsets + ow[:, None]
+    output_mask = (
+        (n[:, None] < batch_size)
+        & (oh[:, None] < output_height)
+        & (ow[:, None] < output_width)
+        & (co_in_offsets[None, :] < output_channels_per_group)
+        & (co_offsets[None, :] < output_channels)
+    )
+    tl.store(output_pointer + output_offsets, accum, mask=output_mask)
+
+
+@libentry()
+@triton.jit
 def _conv_transpose2d_general_kernel(
     input_pointer,
     weight_pointer,
@@ -1782,50 +1910,44 @@ def _conv_transpose2d_residue(
         block_nhw = 128
         num_warps = 8
 
+    compact_height = triton.cdiv(output_height, stride_h)
+    compact_width = triton.cdiv(output_width, stride_w)
+    max_sub_spatial = batch * compact_height * compact_width
+    n_subgrids = stride_h * stride_w
     co_blocks_per_group = triton.cdiv(output_channels_per_group, block_co)
+    grid = (
+        triton.cdiv(max_sub_spatial, block_nhw),
+        co_blocks_per_group,
+        groups * n_subgrids,
+    )
     bias_pointer = bias if bias is not None else input
-    # Iterate over spatial-phase residues on the host so each launch compiles
-    # with static (constexpr) residues; this keeps the kh/kw skip conditions
-    # in Python control flow instead of runtime tensors.
-    for residue_h in range(stride_h):
-        compact_height = (output_height + stride_h - 1 - residue_h) // stride_h
-        for residue_w in range(stride_w):
-            compact_width = (output_width + stride_w - 1 - residue_w) // stride_w
-            grid = (
-                triton.cdiv(batch * compact_height * compact_width, block_nhw),
-                groups * co_blocks_per_group,
-            )
-            _conv_transpose2d_residue_static_kernel[grid](
-                input,
-                weight,
-                bias_pointer,
-                output,
-                batch,
-                input_channels,
-                input_height,
-                input_width,
-                output_channels,
-                output_height,
-                output_width,
-                compact_height,
-                compact_width,
-                weight_height,
-                weight_width,
-                output_channels_per_group,
-                input_channels // groups,
-                stride_h,
-                stride_w,
-                padding_h,
-                padding_w,
-                dilation_h,
-                dilation_w,
-                bias is not None,
-                residue_h,
-                residue_w,
-                co_blocks_per_group,
-                BLOCK_NHW=block_nhw,
-                BLOCK_CI=block_ci,
-                BLOCK_CO=block_co,
-                num_warps=num_warps,
-            )
+    _conv_transpose2d_residue_kernel[grid](
+        input,
+        weight,
+        bias_pointer,
+        output,
+        batch,
+        input_channels,
+        input_height,
+        input_width,
+        output_channels,
+        output_height,
+        output_width,
+        weight_height,
+        weight_width,
+        output_channels_per_group,
+        input_channels // groups,
+        stride_h,
+        stride_w,
+        padding_h,
+        padding_w,
+        dilation_h,
+        dilation_w,
+        bias is not None,
+        n_subgrids,
+        BLOCK_NHW=block_nhw,
+        BLOCK_CI=block_ci,
+        BLOCK_CO=block_co,
+        num_warps=num_warps,
+    )
     return output
