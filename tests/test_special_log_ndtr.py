@@ -19,6 +19,6 @@ def test_special_log_ndtr(shape, dtype):
     with flag_gems.use_gems():
         res_out = torch.ops.aten.special_log_ndtr(inp)
 
-    # Allow for numerical differences between our erf-based implementation
+    # Allow for numerical differences between our erfc-based implementation
     # and PyTorch's implementation (which uses a different algorithm)
     utils.gems_assert_close(res_out, ref_out, dtype)

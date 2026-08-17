@@ -5,21 +5,24 @@ import torch
 import triton
 import triton.language as tl
 
-from flag_gems.utils import pointwise_dynamic
+from flag_gems.utils import pointwise_dynamic, tl_extra_shim
 
 logger = logging.getLogger(__name__)
+
+_erfc = tl_extra_shim.erfc
 
 
 @pointwise_dynamic(promotion_methods=[(0, "DEFAULT")])
 @triton.jit
 def special_log_ndtr_func(x):
-    # Compute log(cdf(x)) where cdf is the standard normal cumulative distribution
-    # cdf(x) = 0.5 * (1 + erf(x / sqrt(2)))
-    # log_ndtr(x) = log(0.5 * (1 + erf(x / sqrt(2))))
+    # Compute log(cdf(x)) where cdf is the standard normal cumulative distribution.
+    # cdf(x) = 0.5 * (1 + erf(x / sqrt(2))) = 0.5 * erfc(-x / sqrt(2))
+    # The erfc form is used instead of (1 + erf) to avoid catastrophic
+    # cancellation for large negative x, where 1 + erf(x / sqrt(2)) -> 0 loses
+    # all significant digits while erfc(-x / sqrt(2)) stays well-conditioned.
     SQRT_HALF = 0.7071067811865476  # 1 / sqrt(2)
     x_fp32 = x.to(tl.float32)
-    erf_result = tl.math.erf(x_fp32 * SQRT_HALF)
-    cdf_value = 0.5 * (1.0 + erf_result)
+    cdf_value = 0.5 * _erfc(-x_fp32 * SQRT_HALF)
     log_cdf = tl.log(cdf_value)
     return log_cdf.to(x.dtype)
 
