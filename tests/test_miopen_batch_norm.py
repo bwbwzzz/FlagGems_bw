@@ -57,19 +57,19 @@ def test_miopen_batch_norm(shape, dtype, affine):
     ref_running_mean = utils.to_reference(running_mean, True)
     ref_running_var = utils.to_reference(running_var, True)
 
-    # Reference: use native_batch_norm with use_gems (same as our implementation)
-    with flag_gems.use_gems():
-        ref_out = torch.ops.aten.native_batch_norm(
-            ref_inp,
-            ref_weight,
-            ref_bias,
-            ref_running_mean,
-            ref_running_var,
-            True,  # training
-            momentum,
-            eps,
-        )[0]
+    # Reference: pure PyTorch native_batch_norm as the baseline (outside use_gems)
+    ref_out = torch.ops.aten.native_batch_norm(
+        ref_inp,
+        ref_weight,
+        ref_bias,
+        ref_running_mean,
+        ref_running_var,
+        True,  # training
+        momentum,
+        eps,
+    )[0]
 
+    with flag_gems.use_gems():
         res_out = torch.ops.aten.miopen_batch_norm(
             inp,
             weight,
@@ -121,19 +121,19 @@ def test_miopen_batch_norm_eval(shape, dtype, affine):
     ref_running_mean = utils.to_reference(running_mean, True)
     ref_running_var = utils.to_reference(running_var, True)
 
-    # Reference: use native_batch_norm with use_gems (same as our implementation)
-    with flag_gems.use_gems():
-        ref_out = torch.ops.aten.native_batch_norm(
-            ref_inp,
-            ref_weight,
-            ref_bias,
-            ref_running_mean,
-            ref_running_var,
-            False,  # eval mode
-            momentum,
-            eps,
-        )[0]
+    # Reference: pure PyTorch native_batch_norm as the baseline (outside use_gems)
+    ref_out = torch.ops.aten.native_batch_norm(
+        ref_inp,
+        ref_weight,
+        ref_bias,
+        ref_running_mean,
+        ref_running_var,
+        False,  # eval mode
+        momentum,
+        eps,
+    )[0]
 
+    with flag_gems.use_gems():
         res_out = torch.ops.aten.miopen_batch_norm(
             inp,
             weight,
