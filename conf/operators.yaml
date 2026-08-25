@@ -1257,7 +1257,7 @@ ops:
       - Math
     stages:
       - alpha: '5.4'
-- id: cholesky
+  - id: cholesky
     description: |
       Computes the Cholesky decomposition of a symmetric positive-definite matrix A
       or for batches of symmetric positive-definite matrices.
