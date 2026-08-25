@@ -11384,7 +11384,7 @@ ops:
     kind:
       - Math
     stages:
-      - alpha: '5.4
+      - alpha: '5.4'
   - id: special_logit
     description: |
       Returns a new tensor with the logit of the elements of input.
