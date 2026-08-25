@@ -26,7 +26,13 @@ from . import accuracy_utils as utils
 @pytest.mark.parametrize("shape", utils.POINTWISE_SHAPES)
 @pytest.mark.parametrize("dtype", utils.FLOAT_DTYPES)
 def test_special_psi(shape, dtype):
-    inp = torch.rand(shape, dtype=dtype, device=flag_gems.device) + 1.0
+    # psi (digamma) is defined on both positive and negative reals, with
+    # poles at 0 and the negative integers. Cover both signs while keeping
+    # inputs away from the poles: an integer base in [-4, 4) plus a
+    # fractional part in [0.2, 0.8] so values never land on an integer.
+    base = torch.randint(-4, 4, shape, device=flag_gems.device).to(dtype)
+    frac = torch.rand(shape, dtype=dtype, device=flag_gems.device) * 0.6 + 0.2
+    inp = base + frac
     ref_inp = utils.to_reference(inp)
 
     ref_out = torch.special.psi(ref_inp)
