@@ -815,8 +815,8 @@ from flag_gems.ops.special_modified_bessel_k1 import (
     special_modified_bessel_k1_out,
 )
 from flag_gems.ops.special_multigammaln import special_multigammaln
-from flag_gems.ops.special_psi import special_psi
 from flag_gems.ops.special_ndtr import special_ndtr
+from flag_gems.ops.special_psi import special_psi
 from flag_gems.ops.special_round import special_round, special_round_out
 from flag_gems.ops.special_scaled_modified_bessel_k1 import (
     special_scaled_modified_bessel_k1,
@@ -1817,8 +1817,8 @@ __all__ = [
     "special_modified_bessel_k1",
     "special_modified_bessel_k1_out",
     "special_multigammaln",
-    "special_psi",
     "special_ndtr",
+    "special_psi",
     "special_round",
     "special_round_out",
     "special_scaled_modified_bessel_k1",
