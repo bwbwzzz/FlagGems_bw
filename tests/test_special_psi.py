@@ -30,9 +30,7 @@ def test_special_psi(shape, dtype):
     # poles at 0 and the negative integers. Cover both signs while keeping
     # inputs away from the poles: an integer base in [-4, 4) plus a
     # fractional part in [0.2, 0.8] so values never land on an integer.
-    base = torch.randint(-4, 4, shape, device=flag_gems.device).to(dtype)
-    frac = torch.rand(shape, dtype=dtype, device=flag_gems.device) * 0.6 + 0.2
-    inp = base + frac
+    inp = torch.randn(shape, dtype=dtype, device=flag_gems.device)
     ref_inp = utils.to_reference(inp)
 
     ref_out = torch.special.psi(ref_inp)
