@@ -35,7 +35,7 @@ from . import base
 
 # torch.special.modified_bessel_i1 CUDA reference only supports float32
 # (not fp16/bf16), so benchmark dtypes are restricted to float32.
-_DTYPES = [torch.float32]
+_DTYPES = [torch.float32, torch.float64]
 
 
 @pytest.mark.special_modified_bessel_i1
