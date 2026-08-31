@@ -24,7 +24,7 @@ from . import accuracy_utils as utils
 
 @pytest.mark.grid_sampler_2d
 @pytest.mark.parametrize("shape", [(1, 1, 4, 4), (1, 3, 8, 8)])  # Simple shapes only
-# kernel 当前仅支持 float32
+# kernel now support float32
 @pytest.mark.parametrize("dtype", [torch.float32])
 @pytest.mark.parametrize("interpolation_mode", [0])  # Bilinear only for now
 @pytest.mark.parametrize("align_corners", [True])
