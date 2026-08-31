@@ -77,10 +77,6 @@ def _input_fn(shape, dtype, device):
     flag_gems.vendor_name == "tsingmicro", reason="Issue #4131: not working"
 )
 def test_convolution(monkeypatch):
-    if flag_gems.vendor_name == "hygon":
-        monkeypatch.setenv("TRITON_HIP_USE_NEW_STREAM_PIPELINE", "0")
-
-    torch.backends.cudnn.allow_tf32 = False
     bench = ConvolutionBenchmark(
         input_fn=_input_fn,
         op_name="convolution",
