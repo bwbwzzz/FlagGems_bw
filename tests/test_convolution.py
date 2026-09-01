@@ -92,18 +92,17 @@ def test_convolution_1d(shape, kernel, stride, padding, groups, dtype, bias):
         groups,
     ).to(dtype)
 
-    with flag_gems.use_gems():
-        res_out = torch.convolution(
-            inp,
-            weight,
-            bias,
-            _to_list(stride, 1),
-            _to_list(padding, 1),
-            _to_list(1, 1),
-            False,
-            _to_list(0, 1),
-            groups,
-        )
+    res_out = flag_gems.convolution(
+        inp,
+        weight,
+        bias,
+        _to_list(stride, 1),
+        _to_list(padding, 1),
+        _to_list(1, 1),
+        False,
+        _to_list(0, 1),
+        groups,
+    )
 
     reduce_dim = weight.shape[1] * weight.shape[2]
     utils.gems_assert_close(res_out, ref_out, dtype, reduce_dim=reduce_dim)
@@ -144,18 +143,17 @@ def test_convolution_2d(shape, kernel, stride, padding, groups, dtype, dilation,
         groups,
     ).to(dtype)
 
-    with flag_gems.use_gems():
-        res_out = torch.convolution(
-            inp,
-            weight,
-            bias,
-            _to_list(stride, 2),
-            _to_list(padding, 2),
-            _to_list(dilation, 2),
-            False,
-            _to_list(0, 2),
-            groups,
-        )
+    res_out = flag_gems.convolution(
+        inp,
+        weight,
+        bias,
+        _to_list(stride, 2),
+        _to_list(padding, 2),
+        _to_list(dilation, 2),
+        False,
+        _to_list(0, 2),
+        groups,
+    )
 
     reduce_dim = weight.shape[1] * weight.shape[2] * weight.shape[3]
     utils.gems_assert_close(res_out, ref_out, dtype, reduce_dim=reduce_dim)
@@ -195,18 +193,17 @@ def test_convolution_3d(shape, kernel, stride, padding, groups, dtype, bias):
         groups,
     ).to(dtype)
 
-    with flag_gems.use_gems():
-        res_out = torch.convolution(
-            inp,
-            weight,
-            bias,
-            _to_list(stride, 3),
-            _to_list(padding, 3),
-            _to_list(1, 3),
-            False,
-            _to_list(0, 3),
-            groups,
-        )
+    res_out = flag_gems.convolution(
+        inp,
+        weight,
+        bias,
+        _to_list(stride, 3),
+        _to_list(padding, 3),
+        _to_list(1, 3),
+        False,
+        _to_list(0, 3),
+        groups,
+    )
 
     reduce_dim = weight.shape[1] * weight.shape[2] * weight.shape[3] * weight.shape[4]
     utils.gems_assert_close(res_out, ref_out, dtype, reduce_dim=reduce_dim)
@@ -253,18 +250,17 @@ def test_convolution_transposed_2d(shape, kernel, stride, padding, groups, dtype
         groups,
     ).to(dtype)
 
-    with flag_gems.use_gems():
-        res_out = torch.convolution(
-            inp,
-            weight,
-            bias,
-            _to_list(stride, 2),
-            _to_list(padding, 2),
-            _to_list(1, 2),
-            True,
-            _to_list(output_padding, 2),
-            groups,
-        )
+    res_out = flag_gems.convolution(
+        inp,
+        weight,
+        bias,
+        _to_list(stride, 2),
+        _to_list(padding, 2),
+        _to_list(1, 2),
+        True,
+        _to_list(output_padding, 2),
+        groups,
+    )
 
     reduce_dim = in_channels * kernel[2] * kernel[3]
     utils.gems_assert_close(res_out, ref_out, dtype, reduce_dim=reduce_dim)
