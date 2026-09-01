@@ -41,8 +41,7 @@ def test_linalg_inv(shape, dtype):
     ref_A = utils.to_reference(A)
     ref_out = torch.linalg.inv(ref_A)
 
-    with flag_gems.use_gems():
-        res_out = torch.linalg.inv(A)
+    res_out = flag_gems.linalg_inv(A)
 
     utils.gems_assert_close(res_out, ref_out, dtype)
 
@@ -57,8 +56,7 @@ def test_linalg_inv_batch(shape, dtype):
     ref_A = utils.to_reference(A)
     ref_out = torch.linalg.inv(ref_A)
 
-    with flag_gems.use_gems():
-        res_out = torch.linalg.inv(A)
+    res_out = flag_gems.linalg_inv(A)
 
     utils.gems_assert_close(res_out, ref_out, dtype)
 
@@ -75,8 +73,7 @@ def test_linalg_inv_out(shape, dtype):
     ref_out = torch.linalg.inv(ref_A)
 
     out = torch.empty_like(A)
-    with flag_gems.use_gems():
-        res_out = torch.linalg.inv(A, out=out)
+    res_out = flag_gems.linalg_inv_out(A, out=out)
 
     utils.gems_assert_close(res_out, ref_out, dtype)
     utils.gems_assert_close(out, ref_out, dtype)
