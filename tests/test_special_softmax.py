@@ -49,8 +49,7 @@ def test_special_softmax(shape, dtype, dim):
     ref_inp = utils.to_reference(inp)
 
     ref_out = torch.special.softmax(ref_inp, dim)
-    with flag_gems.use_gems():
-        res_out = torch.special.softmax(inp, dim)
+    res_out = flag_gems.special_softmax(inp, dim)
 
     utils.gems_assert_close(res_out, ref_out, dtype)
 
@@ -72,8 +71,7 @@ def test_special_softmax_with_dtype(shape, dtype, dim, dtype_arg):
     ref_inp = utils.to_reference(inp)
 
     ref_out = torch.special.softmax(ref_inp, dim, dtype=dtype_arg)
-    with flag_gems.use_gems():
-        res_out = torch.special.softmax(inp, dim, dtype=dtype_arg)
+    res_out = flag_gems.special_softmax(inp, dim, dtype=dtype_arg)
 
     # Determine expected output dtype
     expected_dtype = dtype_arg if dtype_arg is not None else dtype
