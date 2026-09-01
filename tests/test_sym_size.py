@@ -45,8 +45,7 @@ def test_sym_size(shape, dtype):
     # Get sym_size result from reference (PyTorch default)
     ref_out = torch.ops.aten.sym_size(ref_x)
     # Get sym_size result from FlagGems
-    with flag_gems.use_gems():
-        act_out = torch.ops.aten.sym_size(x)
+    act_out = flag_gems.sym_size(x)
 
     # Compare the returned lists
     assert act_out == ref_out, f"sym_size mismatch: got {act_out}, expected {ref_out}"
