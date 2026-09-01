@@ -41,9 +41,8 @@ def test_grid_sampler_2d(shape, dtype, interpolation_mode, align_corners):
     ref_out = torch.grid_sampler_2d(
         ref_input, ref_grid, interpolation_mode, 0, align_corners  # zeros padding
     )
-    with flag_gems.use_gems():
-        res_out = torch.grid_sampler_2d(
-            input, grid, interpolation_mode, 0, align_corners
-        )
+    res_out = flag_gems.grid_sampler_2d(
+        input, grid, interpolation_mode, 0, align_corners
+    )
 
     utils.gems_assert_close(res_out, ref_out, dtype)
