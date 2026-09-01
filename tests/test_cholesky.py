@@ -38,8 +38,7 @@ def test_cholesky(shape, dtype):
     ref_A = utils.to_reference(A)
     ref_out = torch.cholesky(ref_A)
 
-    with flag_gems.use_gems():
-        res_out = torch.cholesky(A)
+    res_out = flag_gems.cholesky(A)
 
     utils.gems_assert_close(res_out, ref_out, dtype)
 
@@ -60,8 +59,7 @@ def test_cholesky_upper(shape, dtype):
     ref_A = utils.to_reference(A)
     ref_out = torch.cholesky(ref_A, upper=True)
 
-    with flag_gems.use_gems():
-        res_out = torch.cholesky(A, upper=True)
+    res_out = flag_gems.cholesky(A, upper=True)
 
     utils.gems_assert_close(res_out, ref_out, dtype)
 
@@ -82,7 +80,6 @@ def test_cholesky_batch(shape, dtype):
     ref_A = utils.to_reference(A)
     ref_out = torch.cholesky(ref_A)
 
-    with flag_gems.use_gems():
-        res_out = torch.cholesky(A)
+    res_out = flag_gems.cholesky(A)
 
     utils.gems_assert_close(res_out, ref_out, dtype)
