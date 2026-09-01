@@ -22,8 +22,7 @@ def test_linalg_eigvalsh(shape, dtype):
     ref_A = utils.to_reference(A)
     ref_out = torch.linalg.eigvalsh(ref_A)
 
-    with flag_gems.use_gems():
-        res_out = torch.ops.aten.linalg_eigvalsh(A)
+    res_out = flag_gems.linalg_eigvalsh(A)
 
     utils.gems_assert_close(res_out, ref_out, dtype)
 
@@ -37,8 +36,7 @@ def test_linalg_eigvalsh_upper(shape, dtype):
     ref_A = utils.to_reference(A)
     ref_out = torch.linalg.eigvalsh(ref_A, UPLO="U")
 
-    with flag_gems.use_gems():
-        res_out = torch.ops.aten.linalg_eigvalsh(A, UPLO="U")
+    res_out = flag_gems.linalg_eigvalsh(A, UPLO="U")
 
     utils.gems_assert_close(res_out, ref_out, dtype)
 
@@ -52,7 +50,6 @@ def test_linalg_eigvalsh_batch(shape, dtype):
     ref_A = utils.to_reference(A)
     ref_out = torch.linalg.eigvalsh(ref_A)
 
-    with flag_gems.use_gems():
-        res_out = torch.ops.aten.linalg_eigvalsh(A)
+    res_out = flag_gems.linalg_eigvalsh(A)
 
     utils.gems_assert_close(res_out, ref_out, dtype)
