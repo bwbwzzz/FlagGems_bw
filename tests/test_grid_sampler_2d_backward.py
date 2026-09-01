@@ -43,16 +43,15 @@ def test_grid_sampler_2d_backward(
     grad_output = torch.randn(N, C, OH, OW, dtype=dtype, device=flag_gems.device)
 
     # Compute gradients
-    with flag_gems.use_gems():
-        grad_input, grad_grid = torch.ops.aten.grid_sampler_2d_backward(
-            grad_output,
-            input,
-            grid,
-            interp_mode,
-            padding_mode,
-            align_corners,
-            (True, True),
-        )
+    grad_input, grad_grid = flag_gems.grid_sampler_2d_backward(
+        grad_output,
+        input,
+        grid,
+        interp_mode,
+        padding_mode,
+        align_corners,
+        (True, True),
+    )
 
     # Check shapes
     assert (
@@ -82,10 +81,9 @@ def test_accuracy_grid_sampler_2d_backward_grad_input_only(shape, dtype):
     grad_output = torch.randn(N, C, OH, OW, dtype=dtype, device=flag_gems.device)
 
     # Compute only grad_input
-    with flag_gems.use_gems():
-        grad_input, grad_grid = torch.ops.aten.grid_sampler_2d_backward(
-            grad_output, input, grid, 0, 0, False, (True, False)
-        )
+    grad_input, grad_grid = flag_gems.grid_sampler_2d_backward(
+        grad_output, input, grid, 0, 0, False, (True, False)
+    )
 
     # Check shapes
     assert grad_input.shape == input.shape
@@ -107,10 +105,9 @@ def test_accuracy_grid_sampler_2d_backward_grad_grid_only(shape, dtype):
     grad_output = torch.randn(N, C, OH, OW, dtype=dtype, device=flag_gems.device)
 
     # Compute only grad_grid
-    with flag_gems.use_gems():
-        grad_input, grad_grid = torch.ops.aten.grid_sampler_2d_backward(
-            grad_output, input, grid, 0, 0, False, (False, True)
-        )
+    grad_input, grad_grid = flag_gems.grid_sampler_2d_backward(
+        grad_output, input, grid, 0, 0, False, (False, True)
+    )
 
     # Check shapes
     assert grad_input is None
