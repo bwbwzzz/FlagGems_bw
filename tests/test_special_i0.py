@@ -38,8 +38,7 @@ def test_special_i0(shape, dtype):
         ref_out = torch.ops.aten.special_i0(ref_x.float()).to(dtype)
     else:
         ref_out = torch.ops.aten.special_i0(ref_x)
-    with flag_gems.use_gems():
-        act_out = torch.ops.aten.special_i0(x)
+    act_out = flag_gems.special_i0(x)
     utils.gems_assert_close(act_out, ref_out, dtype)
 
 
@@ -58,7 +57,6 @@ def test_special_i0_out(shape, dtype):
         out_ref = torch.empty_like(ref_x)
         ref_out = torch.ops.aten.special_i0.out(ref_x, out=out_ref)
     out_act = torch.empty_like(x)
-    with flag_gems.use_gems():
-        act_out = torch.ops.aten.special_i0.out(x, out=out_act)
+    act_out = flag_gems.special_i0_out(x, out=out_act)
     utils.gems_assert_close(act_out, ref_out, dtype)
     utils.gems_assert_close(out_act, out_ref, dtype)
