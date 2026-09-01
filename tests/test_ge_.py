@@ -35,7 +35,6 @@ def test_ge_(shape, dtype):
     ref_inp2 = utils.to_reference(inp2)
 
     ref_inp1.ge_(ref_inp2)
-    with flag_gems.use_gems():
-        inp1.ge_(inp2)
+    flag_gems.ge_(inp1, inp2)
 
     utils.gems_assert_equal(inp1, ref_inp1)
