@@ -34,7 +34,6 @@ def test_igamma(shape, dtype):
     ref_inp2 = utils.to_reference(inp2, True)
 
     ref_out = torch.igamma(ref_inp1, ref_inp2)
-    with flag_gems.use_gems():
-        res_out = torch.igamma(inp1, inp2)
+    res_out = flag_gems.igamma(inp1, inp2)
 
     utils.gems_assert_close(res_out, ref_out, dtype, equal_nan=True)
