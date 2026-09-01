@@ -42,8 +42,7 @@ def test_linalg_tensorsolve(a_shape, b_ndim, dtype):
     ref_B = utils.to_reference(B)
     ref_out = torch.linalg.tensorsolve(ref_A, ref_B)
 
-    with flag_gems.use_gems():
-        res_out = torch.linalg.tensorsolve(A, B)
+    res_out = flag_gems.linalg_tensorsolve(A, B)
 
     utils.gems_assert_close(res_out, ref_out, dtype, equal_nan=True)
 
@@ -75,8 +74,7 @@ def test_linalg_tensorsolve_dims(a_shape, b_shape, dims, dtype):
     ref_B = utils.to_reference(B)
     ref_out = torch.linalg.tensorsolve(ref_A, ref_B, dims=dims)
 
-    with flag_gems.use_gems():
-        res_out = torch.linalg.tensorsolve(A, B, dims=dims)
+    res_out = flag_gems.linalg_tensorsolve(A, B, dims=dims)
 
     utils.gems_assert_close(res_out, ref_out, dtype, equal_nan=True)
 
@@ -99,8 +97,7 @@ def test_linalg_tensorsolve_out(a_shape, b_ndim, dtype):
     ref_out = torch.linalg.tensorsolve(ref_A, ref_B)
 
     out = torch.empty(a_shape[b_ndim:], dtype=dtype, device=flag_gems.device)
-    with flag_gems.use_gems():
-        res_out = torch.linalg.tensorsolve(A, B, out=out)
+    res_out = flag_gems.linalg_tensorsolve_out(A, B, out=out)
 
     utils.gems_assert_close(res_out, ref_out, dtype, equal_nan=True)
     utils.gems_assert_close(out, ref_out, dtype, equal_nan=True)
