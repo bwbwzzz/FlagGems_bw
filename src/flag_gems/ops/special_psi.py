@@ -31,6 +31,9 @@ def special_psi_kernel(x):
     # Compute in float32 for better precision
     x_f32 = x.to(tl.float32)
 
+    # Handle NaN and Inf in input
+    is_finite = tl.math.isfinite(x_f32)
+
     pi = 3.1415926535897932384626433832795028841971
 
     # Reflection for x < 0.5: psi(x) = psi(1 - x) - pi * cot(pi * x)
@@ -42,7 +45,9 @@ def special_psi_kernel(x):
     y = xr
     for _ in range(8):
         m = y < 8.0
-        s = s - tl.where(m, 1.0 / y, 0.0)
+        # Add safety check to prevent division by very small y
+        safe_y = tl.where(tl.abs(y) < 1e-7, 1e-7, y)
+        s = s - tl.where(m, 1.0 / safe_y, 0.0)
         y = tl.where(m, y + 1.0, y)
 
     # Asymptotic expansion for digamma at large y
@@ -63,13 +68,19 @@ def special_psi_kernel(x):
 
     # Apply reflection if needed
     # Separate sin/cos computation and add division-by-zero protection
-    # When sin(pi*x) is near zero (x near integer), use a safe epsilon
+    # When sin(pi*x) is near zero (x near integer), use a safe epsilon while preserving sign
     # This prevents NaN/Inf in fp16 even for values that don't need reflection
     sin_val = tl.sin(pi * x_f32)
     cos_val = tl.cos(pi * x_f32)
-    safe_sin = tl.where(tl.abs(sin_val) < 1e-7, 1e-7, sin_val)
+    # Use larger epsilon for fp16 stability and preserve sign
+    eps = 1e-6
+    sign_sin = tl.where(sin_val >= 0.0, 1.0, -1.0)
+    safe_sin = tl.where(tl.abs(sin_val) < eps, sign_sin * eps, sin_val)
     cot_term = cos_val / safe_sin
     result = tl.where(reflect_mask, psi_y - pi * cot_term, psi_y)
+
+    # Preserve NaN/Inf from input
+    result = tl.where(is_finite, result, x_f32)
 
     return result.to(x.dtype)
 
