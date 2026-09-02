@@ -38,8 +38,7 @@ def test_linalg_eig(shape, dtype):
     ref_inp = utils.to_reference(inp)
 
     ref_w, _ = torch.linalg.eig(ref_inp)
-    with flag_gems.use_gems():
-        res_w, res_v = torch.linalg.eig(inp)
+    res_w, res_v = flag_gems.ops.linalg_eig(inp)
 
     # eigenvalue set: sort by (real, imag) before comparing
     def _sort_key(w):
@@ -63,8 +62,7 @@ def test_linalg_eig(shape, dtype):
 def test_linalg_eig_batched(batch, n, dtype):
     inp = torch.randn(batch, n, n, dtype=dtype, device=flag_gems.device)
 
-    with flag_gems.use_gems():
-        res_w, res_v = torch.linalg.eig(inp)
+    res_w, res_v = flag_gems.ops.linalg_eig(inp)
 
     a_c = inp.to(res_v.dtype)
     recon = a_c @ res_v - res_v @ torch.diag_embed(res_w)
