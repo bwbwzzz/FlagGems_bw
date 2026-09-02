@@ -13321,7 +13321,7 @@ ops:
 
     '
   for:
-  - sym_sizeExpand commentComment on lines R7594 to R7600Resolved
+  - sym_size
   labels:
   - aten
   - KernelGen
