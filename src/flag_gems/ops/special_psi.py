@@ -62,7 +62,13 @@ def special_psi_kernel(x):
     psi_y = tl.log(y) + s + series
 
     # Apply reflection if needed
-    cot_term = tl.cos(pi * x_f32) / tl.sin(pi * x_f32)
+    # Separate sin/cos computation and add division-by-zero protection
+    # When sin(pi*x) is near zero (x near integer), use a safe epsilon
+    # This prevents NaN/Inf in fp16 even for values that don't need reflection
+    sin_val = tl.sin(pi * x_f32)
+    cos_val = tl.cos(pi * x_f32)
+    safe_sin = tl.where(tl.abs(sin_val) < 1e-7, 1e-7, sin_val)
+    cot_term = cos_val / safe_sin
     result = tl.where(reflect_mask, psi_y - pi * cot_term, psi_y)
 
     return result.to(x.dtype)
