@@ -20,7 +20,7 @@ import logging
 import triton
 import triton.language as tl
 
-from flag_gems.utils import pointwise_dynamic
+from flag_gems.utils import pointwise_dynamic, tl_extra_shim
 
 logger = logging.getLogger(__name__)
 
@@ -32,7 +32,7 @@ def special_psi_kernel(x):
     x_f32 = x.to(tl.float32)
 
     # Handle NaN and Inf in input
-    is_finite = tl.math.isfinite(x_f32)
+    is_finite = ~tl_extra_shim.isnan(x_f32) & ~tl_extra_shim.isinf(x_f32)
 
     pi = 3.1415926535897932384626433832795028841971
 
