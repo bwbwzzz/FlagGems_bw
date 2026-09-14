@@ -28,13 +28,13 @@ logger = logging.getLogger(__name__)
 @pointwise_dynamic(promotion_methods=[(0, 1, "ALWAYS_BOOL")])
 @triton.jit
 def greater__inplace_func(x, y):
-    return x.to(tl.float32) > y
+    return x > y
 
 
 @pointwise_dynamic(is_tensor=[True, False], promotion_methods=[(0, 1, "ALWAYS_BOOL")])
 @triton.jit
 def greater__scalar_inplace_func(x, y):
-    return x.to(tl.float32) > y
+    return x > y
 
 
 def greater_(A, B):

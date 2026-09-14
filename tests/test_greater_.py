@@ -38,3 +38,31 @@ def test_greater_(shape, dtype):
     flag_gems.greater_(inp1, inp2)
 
     utils.gems_assert_equal(inp1, ref_inp1)
+
+
+@pytest.mark.greater_
+@pytest.mark.parametrize("dtype", [torch.float64])
+def test_greater_fp64_precision(dtype):
+    """Test that float64 precision is preserved and not converted to float32.
+
+    This test uses values that are distinguishable in float64 but would
+    become equal when converted to float32, ensuring the comparison is
+    done at full float64 precision.
+    """
+    # These values differ in float64 but round to the same float32 value
+    # val1 = 16777216.5, val2 = 16777216.4
+    # In float64: val1 > val2 = True
+    # In float32: both become 16777216.0, so val1 > val2 = False
+    val1 = 16777216.5
+    val2 = 16777216.4
+
+    inp1 = torch.tensor([val1], dtype=dtype, device=flag_gems.device)
+    inp2 = torch.tensor([val2], dtype=dtype, device=flag_gems.device)
+    ref_inp1 = utils.to_reference(inp1)
+    ref_inp2 = utils.to_reference(inp2)
+
+    ref_inp1.greater_(ref_inp2)
+    flag_gems.greater_(inp1, inp2)
+
+    utils.gems_assert_equal(inp1, ref_inp1)
+
