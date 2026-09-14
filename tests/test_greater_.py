@@ -65,4 +65,3 @@ def test_greater_fp64_precision(dtype):
     flag_gems.greater_(inp1, inp2)
 
     utils.gems_assert_equal(inp1, ref_inp1)
-
