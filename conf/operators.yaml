@@ -7638,6 +7638,13 @@ ops:
     '
   for:
   - linalg_cholesky_ex
+  labels:
+  - aten
+  - KernelGen
+  kind:
+  - BLAS
+  stages:
+  - alpha: '5.4'
 - id: linalg_cond
   description: Compute the condition number of a matrix with respect to various norms.
   for:
