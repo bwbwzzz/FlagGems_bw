@@ -17,7 +17,7 @@
 import pytest
 import torch
 
-from . import base
+from . import base, consts
 
 GRID_SAMPLER_2D_BACKWARD_SHAPES = [
     (2, 3, 8, 8, 4, 4),
@@ -45,6 +45,7 @@ def test_grid_sampler_2d_backward():
     bench = GridSampler2DBackwardBenchmark(
         op_name="grid_sampler_2d_backward",
         torch_op=torch.ops.aten.grid_sampler_2d_backward,
-        dtypes=[torch.float32],
+        # PyTorch's grid_sampler_2d_backward CUDA kernel supports fp16/bf16/fp32.
+        dtypes=consts.FLOAT_DTYPES,
     )
     bench.run()

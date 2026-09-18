@@ -19,6 +19,8 @@ import torch
 
 import flag_gems
 
+from . import accuracy_utils as utils
+
 GRID_SAMPLER_SHAPES = [
     (2, 3, 8, 8, 4, 4),
 ]
@@ -32,17 +34,33 @@ GRID_SAMPLER_ALIGN_CORNERS = [True, False]
 @pytest.mark.parametrize("interp_mode", GRID_SAMPLER_INTERP_MODE)
 @pytest.mark.parametrize("padding_mode", GRID_SAMPLER_PADDING_MODE)
 @pytest.mark.parametrize("align_corners", GRID_SAMPLER_ALIGN_CORNERS)
-@pytest.mark.parametrize("dtype", [torch.float32])
+@pytest.mark.parametrize("dtype", utils.FLOAT_DTYPES)
 def test_grid_sampler_2d_backward(
     shape, interp_mode, padding_mode, align_corners, dtype
 ):
     N, C, H, W, OH, OW = shape
     torch.manual_seed(42)
     input = torch.randn(N, C, H, W, dtype=dtype, device=flag_gems.device)
-    grid = torch.randn(N, OH, OW, 2, dtype=dtype, device=flag_gems.device)
+    # Grid values in [-1, 1]
+    grid = torch.rand(N, OH, OW, 2, dtype=dtype, device=flag_gems.device) * 2 - 1
     grad_output = torch.randn(N, C, OH, OW, dtype=dtype, device=flag_gems.device)
 
-    # Compute gradients
+    # Upcast reference: PyTorch's native half/bfloat16 backward accumulates in
+    # the low-precision dtype and drifts far from the true gradient, so compare
+    # against a float32/float64 reference cast down to `dtype` instead.
+    ref_grad_output = utils.to_reference(grad_output, upcast=True)
+    ref_input = utils.to_reference(input, upcast=True)
+    ref_grid = utils.to_reference(grid, upcast=True)
+    ref_grad_input, ref_grad_grid = torch.ops.aten.grid_sampler_2d_backward(
+        ref_grad_output,
+        ref_input,
+        ref_grid,
+        interp_mode,
+        padding_mode,
+        align_corners,
+        [True, True],
+    )
+
     grad_input, grad_grid = flag_gems.grid_sampler_2d_backward(
         grad_output,
         input,
@@ -53,66 +71,56 @@ def test_grid_sampler_2d_backward(
         (True, True),
     )
 
-    # Check shapes
-    assert (
-        grad_input.shape == input.shape
-    ), f"Expected {input.shape}, got {grad_input.shape}"
-    assert (
-        grad_grid.shape == grid.shape
-    ), f"Expected {grid.shape}, got {grad_grid.shape}"
-
-    # Check that we get reasonable gradients (not all zeros or NaN)
-    assert not torch.isnan(grad_input).any(), "grad_input contains NaN"
-    assert not torch.isnan(grad_grid).any(), "grad_grid contains NaN"
-
-    # With random input and grid, we should have some non-zero gradients
-    assert grad_input.abs().sum() > 0, "grad_input is all zeros"
-    assert grad_grid.abs().sum() > 0, "grad_grid is all zeros"
+    utils.gems_assert_close(grad_input, ref_grad_input, dtype)
+    utils.gems_assert_close(grad_grid, ref_grad_grid, dtype)
 
 
 @pytest.mark.grid_sampler_2d_backward
 @pytest.mark.parametrize("shape", GRID_SAMPLER_SHAPES)
-@pytest.mark.parametrize("dtype", [torch.float32])
+@pytest.mark.parametrize("dtype", utils.FLOAT_DTYPES)
 def test_accuracy_grid_sampler_2d_backward_grad_input_only(shape, dtype):
     N, C, H, W, OH, OW = shape
     torch.manual_seed(42)
     input = torch.randn(N, C, H, W, dtype=dtype, device=flag_gems.device)
-    grid = torch.randn(N, OH, OW, 2, dtype=dtype, device=flag_gems.device)
+    grid = torch.rand(N, OH, OW, 2, dtype=dtype, device=flag_gems.device) * 2 - 1
     grad_output = torch.randn(N, C, OH, OW, dtype=dtype, device=flag_gems.device)
 
-    # Compute only grad_input
+    ref_grad_output = utils.to_reference(grad_output, upcast=True)
+    ref_input = utils.to_reference(input, upcast=True)
+    ref_grid = utils.to_reference(grid, upcast=True)
+    # aten always returns both tensors; slice the one we requested.
+    ref_grad_input = torch.ops.aten.grid_sampler_2d_backward(
+        ref_grad_output, ref_input, ref_grid, 0, 0, False, [True, False]
+    )[0]
+
     grad_input, grad_grid = flag_gems.grid_sampler_2d_backward(
         grad_output, input, grid, 0, 0, False, (True, False)
     )
 
-    # Check shapes
-    assert grad_input.shape == input.shape
     assert grad_grid is None
-
-    # Check validity
-    assert not torch.isnan(grad_input).any()
-    assert grad_input.abs().sum() > 0
+    utils.gems_assert_close(grad_input, ref_grad_input, dtype)
 
 
 @pytest.mark.grid_sampler_2d_backward
 @pytest.mark.parametrize("shape", GRID_SAMPLER_SHAPES)
-@pytest.mark.parametrize("dtype", [torch.float32])
+@pytest.mark.parametrize("dtype", utils.FLOAT_DTYPES)
 def test_accuracy_grid_sampler_2d_backward_grad_grid_only(shape, dtype):
     N, C, H, W, OH, OW = shape
     torch.manual_seed(42)
     input = torch.randn(N, C, H, W, dtype=dtype, device=flag_gems.device)
-    grid = torch.randn(N, OH, OW, 2, dtype=dtype, device=flag_gems.device)
+    grid = torch.rand(N, OH, OW, 2, dtype=dtype, device=flag_gems.device) * 2 - 1
     grad_output = torch.randn(N, C, OH, OW, dtype=dtype, device=flag_gems.device)
 
-    # Compute only grad_grid
+    ref_grad_output = utils.to_reference(grad_output, upcast=True)
+    ref_input = utils.to_reference(input, upcast=True)
+    ref_grid = utils.to_reference(grid, upcast=True)
+    ref_grad_grid = torch.ops.aten.grid_sampler_2d_backward(
+        ref_grad_output, ref_input, ref_grid, 0, 0, False, [False, True]
+    )[1]
+
     grad_input, grad_grid = flag_gems.grid_sampler_2d_backward(
         grad_output, input, grid, 0, 0, False, (False, True)
     )
 
-    # Check shapes
     assert grad_input is None
-    assert grad_grid.shape == grid.shape
-
-    # Check validity
-    assert not torch.isnan(grad_grid).any()
-    assert grad_grid.abs().sum() > 0
+    utils.gems_assert_close(grad_grid, ref_grad_grid, dtype)
