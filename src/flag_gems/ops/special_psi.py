@@ -66,18 +66,22 @@ def special_psi_kernel(x):
     )
     psi_y = tl.log(y) + s + series
 
-    # Apply reflection if needed
-    # Separate sin/cos computation and add division-by-zero protection
-    # When sin(pi*x) is near zero (x near integer), use a safe epsilon while preserving sign
-    # This prevents NaN/Inf in fp16 even for values that don't need reflection
+    # Apply reflection for x < 0.5: psi(x) = psi(1 - x) - pi * cot(pi * x)
     sin_val = tl.sin(pi * x_f32)
     cos_val = tl.cos(pi * x_f32)
-    # Use larger epsilon for fp16 stability and preserve sign
-    eps = 1e-6
-    sign_sin = tl.where(sin_val >= 0.0, 1.0, -1.0)
-    safe_sin = tl.where(tl.abs(sin_val) < eps, sign_sin * eps, sin_val)
-    cot_term = cos_val / safe_sin
+    cot_term = cos_val / sin_val
     result = tl.where(reflect_mask, psi_y - pi * cot_term, psi_y)
+
+    # psi has poles at 0 and the negative integers. Match torch.special.psi
+    # there: x == 0 -> -inf, negative integers -> nan. Detecting the pole
+    # explicitly (rather than relying on cot blowing up) keeps the sign and
+    # nan/inf behavior aligned with the reference instead of overflowing to a
+    # spurious +/-inf.
+    is_integer = x_f32 == tl.floor(x_f32)
+    is_pole = is_integer & (x_f32 <= 0.0)
+    neg_inf = float("-inf")
+    nan = float("nan")
+    result = tl.where(is_pole, tl.where(x_f32 == 0.0, neg_inf, nan), result)
 
     # Preserve NaN/Inf from input
     result = tl.where(is_finite, result, x_f32)
