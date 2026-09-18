@@ -22,70 +22,19 @@ import flag_gems
 from . import accuracy_utils as utils
 
 
-# psi (digamma) is computed through several code paths depending on the input
-# range (direct asymptotic expansion, recurrence, and the reflection formula
-# for x < 0.5). The tests below exercise each path separately, mirroring the
-# structure used by test_special_digamma.py.
-
-
 @pytest.mark.special_psi
 @pytest.mark.parametrize("shape", utils.POINTWISE_SHAPES)
 @pytest.mark.parametrize("dtype", utils.FLOAT_DTYPES)
-def test_special_psi_large(shape, dtype):
-    """x >= 1.0: direct asymptotic path."""
-    inp = torch.rand(shape, dtype=dtype, device=flag_gems.device) + 1.0
-    ref_inp = utils.to_reference(inp)
-
-    ref_out = torch.special.psi(ref_inp)
-    res_out = flag_gems.special_psi(inp)
-
-    utils.gems_assert_close(res_out, ref_out, dtype)
-
-
-@pytest.mark.special_psi
-@pytest.mark.parametrize("shape", utils.POINTWISE_SHAPES)
-@pytest.mark.parametrize("dtype", utils.FLOAT_DTYPES)
-def test_special_psi_mid(shape, dtype):
-    """x in [0.5, 1.0): recurrence path."""
-    inp = torch.rand(shape, dtype=dtype, device=flag_gems.device) * 0.5 + 0.5
-    ref_inp = utils.to_reference(inp)
-
-    ref_out = torch.special.psi(ref_inp)
-    res_out = flag_gems.special_psi(inp)
-
-    utils.gems_assert_close(res_out, ref_out, dtype)
-
-
-@pytest.mark.special_psi
-@pytest.mark.parametrize("shape", utils.POINTWISE_SHAPES)
-@pytest.mark.parametrize("dtype", utils.FLOAT_DTYPES)
-def test_special_psi_small_positive(shape, dtype):
-    """x in (0.05, 0.45): reflection formula path."""
-    inp = torch.rand(shape, dtype=dtype, device=flag_gems.device) * 0.4 + 0.05
-    ref_inp = utils.to_reference(inp)
-
-    ref_out = torch.special.psi(ref_inp)
-    res_out = flag_gems.special_psi(inp)
-
-    utils.gems_assert_close(res_out, ref_out, dtype)
-
-
-@pytest.mark.special_psi
-@pytest.mark.parametrize("shape", utils.POINTWISE_SHAPES)
-@pytest.mark.parametrize("dtype", utils.FLOAT_DTYPES)
-def test_special_psi_negative(shape, dtype):
-    """Negative values: reflection formula + cot path.
-
-    psi has poles at the non-positive integers. Near these poles both the
-    reference and the kernel suffer from float32 catastrophic cancellation in
-    pi*cot(pi*x), and the function itself grows without bound, so a fixed
-    tolerance is not meaningful there. We restrict the fractional part to
-    [0.1, 0.9] to stay out of the pole neighborhoods while still exercising the
-    reflection path over both signs of the result.
-    """
-    base = torch.randint(0, 4, shape, device=flag_gems.device).float()
-    frac = torch.rand(shape, dtype=dtype, device=flag_gems.device) * 0.8 + 0.1
-    inp = -(base + frac.float()).to(dtype)
+def test_special_psi(shape, dtype):
+    # randn covers both signs and all three code paths (reflection for x < 0.5,
+    # recurrence for [0.5, 1), asymptotic for x >= 1). psi has poles at 0 and the
+    # negative integers; in a narrow band around them both the reference and the
+    # kernel lose precision to float32 catastrophic cancellation in pi*cot(pi*x),
+    # so values within 0.05 of an integer are pushed to a benign point (the poles
+    # themselves are checked separately in test_special_psi_poles).
+    inp = torch.randn(shape, dtype=dtype, device=flag_gems.device)
+    near_pole = (inp - inp.round()).abs() < 0.05
+    inp = torch.where(near_pole, torch.full_like(inp, 1.5), inp)
     ref_inp = utils.to_reference(inp)
 
     ref_out = torch.special.psi(ref_inp)
@@ -97,8 +46,8 @@ def test_special_psi_negative(shape, dtype):
 @pytest.mark.special_psi
 @pytest.mark.parametrize("dtype", utils.FLOAT_DTYPES)
 def test_special_psi_poles(dtype):
-    """Exactly on the poles: match torch.special.psi (x == 0 -> -inf, negative
-    integers -> nan). equal_nan=True lets the nan-valued poles compare equal."""
+    # On the poles psi matches torch.special.psi: x == 0 -> -inf, negative
+    # integers -> nan. equal_nan=True lets the nan-valued poles compare equal.
     inp = torch.tensor(
         [0.0, -1.0, -2.0, -3.0, -4.0], dtype=dtype, device=flag_gems.device
     )
