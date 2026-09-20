@@ -291,6 +291,7 @@ _FULL_CONFIG = (
     # _pin_memory takes a CPU tensor and dispatches on the CPU key, not the
     # accelerator key: registering under the backend key would never fire.
     ("_pin_memory", _pin_memory, None, ["CPU"]),
+    ("_philox_uniform_", _philox_uniform_),
     ("_prelu_kernel", _prelu_kernel),
     ("_prelu_kernel_backward", _prelu_kernel_backward),
     ("_reshape_alias", _reshape_alias),

@@ -12531,6 +12531,13 @@ ops:
     identified by the (seed, offset) pair in `key`.
   for:
   - _philox_normal_
+- id: philox_uniform_
+  description: |
+    Fills the tensor in place with samples from a uniform distribution over
+    [low, high) drawn from a stateless Philox RNG stream identified by the
+    (seed, offset) pair in `key`.
+  for:
+  - _philox_uniform_
   labels:
   - aten
   - KernelGen
