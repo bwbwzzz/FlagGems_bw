@@ -16,6 +16,9 @@
 import pytest
 import torch
 
+import flag_gems
+from flag_gems import linalg_tensorsolve, linalg_tensorsolve_out
+
 from . import base
 
 # tensorsolve benchmark shapes: (A.shape, B.ndim).
@@ -28,6 +31,12 @@ TENSORSOLVE_SHAPES = [
     ((64, 8, 8), 1),
     ((128, 8, 16), 1),
 ]
+
+# tensorsolve only supports float32/float64 (no fp16/bf16), matching
+# torch.linalg.tensorsolve; float64 is added only when the device supports it.
+TENSORSOLVE_DTYPES = [torch.float32] + (
+    [torch.float64] if flag_gems.runtime.device.support_fp64 else []
+)
 
 
 class TensorsolveBenchmark(base.Benchmark):
@@ -61,7 +70,11 @@ def test_linalg_tensorsolve():
         op_name="linalg_tensorsolve",
         torch_op=torch.linalg.tensorsolve,
         # tensorsolve only supports float32/float64; fp16/bf16 not supported.
-        dtypes=[torch.float32, torch.float64],
+        dtypes=TENSORSOLVE_DTYPES,
+        # Call the FlagGems op directly: the generic dispatch path re-enters
+        # FlagGems copy_/zero_ helpers around the out variant, which is not a
+        # reliable baseline harness for this operator.
+        gems_op=linalg_tensorsolve,
     )
     bench.run()
 
@@ -72,6 +85,7 @@ def test_linalg_tensorsolve_out():
         op_name="linalg_tensorsolve_out",
         torch_op=torch.linalg.tensorsolve,
         # tensorsolve only supports float32/float64; fp16/bf16 not supported.
-        dtypes=[torch.float32, torch.float64],
+        dtypes=TENSORSOLVE_DTYPES,
+        gems_op=linalg_tensorsolve_out,
     )
     bench.run()
