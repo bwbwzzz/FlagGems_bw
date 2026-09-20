@@ -13956,6 +13956,13 @@ ops:
     A variant of row_indices_copy() that writes the result into the out tensor.
   for:
   - row_indices_copy.out
+- id: rrelu
+  description: |
+    Applies the randomized leaky ReLU (RReLU) function element-wise. In training
+    mode the slope for negative inputs is drawn uniformly from [lower, upper],
+    while in evaluation mode the average of lower and upper is used.
+  for:
+  - rrelu
   labels:
   - aten
   - KernelGen
