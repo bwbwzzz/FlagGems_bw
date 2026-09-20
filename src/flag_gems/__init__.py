@@ -1212,6 +1212,7 @@ _FULL_CONFIG = (
     ("reflection_pad3d_backward", reflection_pad3d_backward),
     ("relu", relu),
     ("relu6", relu6),
+    ("relu6_", relu6_),
     ("relu_", relu_),
     ("remainder", remainder),
     ("remainder.Scalar", remainder),
