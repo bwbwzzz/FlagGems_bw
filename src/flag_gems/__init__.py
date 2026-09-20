@@ -861,6 +861,7 @@ _FULL_CONFIG = (
     ("isreal", isreal),
     ("kron", kron),
     ("kthvalue", kthvalue),
+    ("l1_loss", l1_loss),
     ("lcm", lcm),
     ("lcm_", lcm_),
     ("ldexp.out", ldexp_out),
