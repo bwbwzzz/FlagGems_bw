@@ -260,6 +260,7 @@ _FULL_CONFIG = (
     ("_padded_dense_to_jagged_forward", _padded_dense_to_jagged_forward),
     ("_pdist_backward", _pdist_backward),
     ("_pdist_forward", _pdist_forward),
+    ("_philox_normal_", _philox_normal_),
     ("_prelu_kernel", _prelu_kernel),
     ("_prelu_kernel_backward", _prelu_kernel_backward),
     ("_reshape_alias", _reshape_alias),
