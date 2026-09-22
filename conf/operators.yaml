@@ -11792,7 +11792,7 @@ ops:
   kind:
   - Distribution
   stages:
-  - alpha: '5.4'
+  - alpha: '5.5.0'
 - id: pinverse
   description: Computes the pseudoinverse of a matrix.
   for:
