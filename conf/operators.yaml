@@ -7763,7 +7763,7 @@ ops:
   kind:
   - NeuralNetwork
   stages:
-  - alpha: '5.4'
+  - alpha: '5.5.0'
 - id: layer_norm
   description: An internal IR for applying Layer Normalization for last certain number
     of dimensions.
