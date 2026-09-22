@@ -152,6 +152,8 @@ def test_scaled_dot_product_fused_attention_overrideable_backward(
         is_causal=is_causal,
         softmax_scale=scale,
     )
+    # The reference math runs on the reference device (CPU under --ref cpu),
+    # while the flag_gems call always takes the original device tensors.
     ref_dOut_bhsd = utils.to_reference(dOut_bhsd)
     ref_Q_bhsd = utils.to_reference(Q_bhsd)
     ref_K_bhsd = utils.to_reference(K_bhsd)
@@ -175,14 +177,14 @@ def test_scaled_dot_product_fused_attention_overrideable_backward(
         dV_bhsd,
         dBias,
     ) = flag_gems.scaled_dot_product_fused_attention_overrideable_backward(
-        ref_dOut_bhsd,
-        ref_Q_bhsd,
-        ref_K_bhsd,
-        ref_V_bhsd,
-        utils.to_reference(attn_bias),
+        dOut_bhsd,
+        Q_bhsd,
+        K_bhsd,
+        V_bhsd,
+        attn_bias,
         [True, True, True, has_attn_bias],
-        ref_out_bhsd,
-        ref_lse,
+        out_bhsd,
+        lse,
         None,
         None,
         q_seq_len,
@@ -267,14 +269,14 @@ def test_scaled_dot_product_fused_attention_overrideable_backward_mask(
         dV_bhsd,
         dBias,
     ) = flag_gems.scaled_dot_product_fused_attention_overrideable_backward(
-        utils.to_reference(dOut_bhsd),
-        utils.to_reference(Q_bhsd),
-        utils.to_reference(K_bhsd),
-        utils.to_reference(V_bhsd),
+        dOut_bhsd,
+        Q_bhsd,
+        K_bhsd,
+        V_bhsd,
         None,
         list(grad_input_mask),
-        utils.to_reference(out_bhsd),
-        utils.to_reference(lse),
+        out_bhsd,
+        lse,
         None,
         None,
         seq_len,
