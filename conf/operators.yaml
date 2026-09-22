@@ -8313,7 +8313,7 @@ ops:
   - alpha: '5.5.0'
   - NeuralNetwork
   stages:
-  - alpha: '5.4'
+  - alpha: '5.5.0'
 - id: kron
   description: Computes the Kronecker product of `input` and `other`.
   for:
