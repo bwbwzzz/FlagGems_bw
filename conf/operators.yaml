@@ -14527,7 +14527,7 @@ ops:
   kind:
   - BLAS
   stages:
-  - alpha: '5.4'
+  - alpha: '5.5.0'
 - id: scaled_softmax_backward
   description: 'The backward pass for a scaled softmax function, commonly used in
     Scaled Dot-Product Attention (SDPA)
