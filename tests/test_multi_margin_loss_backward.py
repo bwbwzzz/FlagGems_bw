@@ -19,11 +19,23 @@ import torch
 import flag_gems
 
 from . import accuracy_utils as utils
+from . import conftest as cfg
+
+# The reference runs on CPU in quick-cpu mode (--ref=cpu), where
+# multi_margin_loss_backward only has a float32/float64 kernel
+# ("multi_margin_loss_backward_cpu_kernel" not implemented for 'Half'/'BFloat16').
+# The CUDA kernel masks gradients using the input dtype, so comparing a
+# bfloat16 GPU result against a full-precision CPU reference also flips
+# borderline classes; restrict the dtype to float32 in that mode.
+if cfg.QUICK_MODE:
+    FLOAT_DTYPES = [torch.float32]
+else:
+    FLOAT_DTYPES = utils.FLOAT_DTYPES
 
 
 @pytest.mark.multi_margin_loss_backward
 @pytest.mark.parametrize("shape", [(2, 32), (128, 256), (512, 512)])
-@pytest.mark.parametrize("dtype", utils.FLOAT_DTYPES)
+@pytest.mark.parametrize("dtype", FLOAT_DTYPES)
 @pytest.mark.parametrize("reduction", [0, 1, 2])
 @pytest.mark.parametrize("p", [1.0, 2.0])
 def test_multi_margin_loss_backward(shape, dtype, reduction, p):
@@ -50,7 +62,7 @@ def test_multi_margin_loss_backward(shape, dtype, reduction, p):
 
 @pytest.mark.multi_margin_loss_backward
 @pytest.mark.parametrize("shape", [(2, 32), (128, 256)])
-@pytest.mark.parametrize("dtype", utils.FLOAT_DTYPES)
+@pytest.mark.parametrize("dtype", FLOAT_DTYPES)
 @pytest.mark.parametrize("reduction", [0, 1, 2])
 @pytest.mark.parametrize("p", [1.0, 2.0])
 def test_multi_margin_loss_backward_weight(shape, dtype, reduction, p):
