@@ -14240,7 +14240,7 @@ ops:
   kind:
   - NeuralNetwork
   stages:
-  - alpha: '5.4'
+  - alpha: '5.5.0'
 - id: softshrink_out
   description: 'This is a variant of `softshrink` that supports an output tensor.
 
