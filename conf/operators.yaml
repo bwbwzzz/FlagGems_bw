@@ -6718,7 +6718,7 @@ ops:
   kind:
   - NeuralNetwork
   stages:
-  - alpha: '5.4'
+  - alpha: '5.5.0'
 - id: hardshrink_out
   description: 'Out-variant of hardshrink. Writes the element-wise result into the
     `out` tensor.
