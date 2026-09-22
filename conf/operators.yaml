@@ -13427,7 +13427,7 @@ ops:
   kind:
   - NeuralNetwork
   stages:
-  - alpha: '5.4'
+  - alpha: '5.5.0'
 - id: scaled_mm
   description: 'Performs a scaled matrix multiplication. The result of `self @ mat2`
     is
