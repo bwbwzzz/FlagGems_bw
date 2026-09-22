@@ -107,7 +107,7 @@ def hardshrink_backward(grad_out: torch.Tensor, self_t: torch.Tensor, lambd=0.5)
 def hardshrink_backward_grad_input(
     grad_out: torch.Tensor, self_t: torch.Tensor, lambd=0.5, *, grad_input=None
 ):
-    logger.debug("GEMS HARD SHRINK BACKWARD.GRAD_INPUT")
+    logger.debug("GEMS HARDSHRINK_BACKWARD_GRAD_INPUT")
     _check_supported_dtype(grad_out)
     _check_supported_dtype(self_t)
     if grad_input is None:
