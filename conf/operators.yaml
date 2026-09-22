@@ -10566,7 +10566,7 @@ ops:
   kind:
   - NeuralNetwork
   stages:
-  - alpha: '5.5'
+  - alpha: '5.5.0'
 - id: multi_margin_loss_out
   description: Writes the multi-class margin loss into the provided output tensor.
   for:
