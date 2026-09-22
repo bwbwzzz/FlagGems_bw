@@ -12509,7 +12509,7 @@ ops:
   kind:
   - NeuralNetwork
   stages:
-  - alpha: '5.4'
+  - alpha: '5.5.0'
 - id: relu_
   description: This is the in-place version of `relu()`.
   for:
