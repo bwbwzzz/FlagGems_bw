@@ -155,7 +155,9 @@ def _reference_normal(numel, seed, offset, mean, std, torch_dtype, device=None):
         out = _affine_f32(vals.T.reshape(-1)[:numel], mean, std)
 
     result = torch.from_numpy(np.ascontiguousarray(out)).to(torch_dtype)
-    if device is not None:
+    # Keep the reference on the caller's device, but on CPU under --ref cpu
+    # so to_cpu()'s device assertion in gems_assert_close holds.
+    if device is not None and not utils.TO_CPU:
         result = result.to(device)
     return result
 
