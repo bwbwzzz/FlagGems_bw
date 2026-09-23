@@ -77,16 +77,22 @@ def test_rrelu__training(shape, dtype):
     lower, upper = LOWER, UPPER
 
     inp = -torch.rand(shape, dtype=dtype, device=flag_gems.device) - 0.5
-    ref_inp = inp.clone()
+    # The operator mutates `inp` in place, so keep an untouched copy for the
+    # comparison. Under --ref cpu that copy must live on the reference device
+    # (CPU), otherwise to_cpu()'s device assertion in gems_assert_equal fails.
+    ref_inp = inp.clone() if not utils.TO_CPU else inp.cpu().clone()
 
     res_out = flag_gems.rrelu_(inp, lower, upper, True, None)
 
-    # Positive inputs are passed through untouched.
+    # Positive inputs are passed through untouched. Under --ref cpu the
+    # untouched copy lives on the reference device, so compare both operands
+    # there (gems_assert_equal's to_cpu() then sees a CPU reference).
+    cmp_res = res_out.to(ref_inp.device)
     pos = ref_inp >= 0
-    utils.gems_assert_equal(res_out[pos], ref_inp[pos])
+    utils.gems_assert_equal(cmp_res[pos], ref_inp[pos])
 
     # Negative inputs are scaled by a slope sampled from [lower, upper].
-    slope = res_out[~pos] / ref_inp[~pos]
+    slope = cmp_res[~pos] / ref_inp[~pos]
     assert torch.all(slope >= lower - 1e-3), slope.min().item()
     assert torch.all(slope <= upper + 1e-3), slope.max().item()
     # The slope must actually vary across elements (i.e. not the eval constant).
