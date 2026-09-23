@@ -159,7 +159,6 @@ def test_scaled_dot_product_fused_attention_overrideable_backward(
     ref_K_bhsd = utils.to_reference(K_bhsd)
     ref_V_bhsd = utils.to_reference(V_bhsd)
     ref_out_bhsd = utils.to_reference(out_bhsd)
-    ref_lse = utils.to_reference(lse)
 
     ref_dQ, ref_dK, ref_dV, _ = _fused_overrideable_attn_backward_math(
         ref_dOut_bhsd,
