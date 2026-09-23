@@ -147,7 +147,12 @@ def _reference_uniform(numel, seed, offset, low, high, torch_dtype):
             out[i] = acc_dtype(x * acc_dtype(rng) + acc_dtype(lo))
     # numpy has no half-precision bfloat16 view, so round through torch and
     # hand the comparison a tensor in the target dtype.
-    return torch.from_numpy(out).to(torch_dtype).to(flag_gems.device)
+    result = torch.from_numpy(out).to(torch_dtype)
+    # Keep the reference on the test device, but on CPU under --ref cpu so
+    # to_cpu()'s device assertion in gems_assert_close holds.
+    if utils.TO_CPU:
+        return result
+    return result.to(flag_gems.device)
 
 
 def _make_key(seed, offset, device):
