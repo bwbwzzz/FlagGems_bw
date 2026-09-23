@@ -83,7 +83,9 @@ def test_l1_loss_empty(reduction):
     inp = torch.empty((0,), dtype=torch.float32, device=flag_gems.device)
     target = torch.empty((0,), dtype=torch.float32, device=flag_gems.device)
 
-    ref_out = torch.ops.aten.l1_loss(inp, target, reduction)
+    ref_inp = utils.to_reference(inp)
+    ref_target = utils.to_reference(target)
+    ref_out = torch.ops.aten.l1_loss(ref_inp, ref_target, reduction)
     res_out = flag_gems.l1_loss(inp, target, reduction)
 
     utils.gems_assert_close(res_out, ref_out, torch.float32, equal_nan=True)
