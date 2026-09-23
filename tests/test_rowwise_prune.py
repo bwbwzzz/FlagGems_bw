@@ -51,8 +51,13 @@ def test_rowwise_prune(shape, dtype, idx_dtype):
     ref_out, ref_indices = _reference_rowwise_prune(
         utils.to_reference(weight).cpu(), utils.to_reference(mask).cpu(), idx_dtype
     )
-    ref_out = ref_out.to(device=flag_gems.device, dtype=dtype)
-    ref_indices = ref_indices.to(device=flag_gems.device)
+    ref_out = ref_out.to(dtype=dtype)
+    ref_indices = ref_indices.to(dtype=idx_dtype)
+    # Keep the reference on the test device, but on CPU under --ref cpu so
+    # to_cpu()'s device assertion in gems_assert_equal holds.
+    if not utils.TO_CPU:
+        ref_out = ref_out.to(device=flag_gems.device)
+        ref_indices = ref_indices.to(device=flag_gems.device)
     res_out, res_indices = flag_gems._rowwise_prune(weight, mask, idx_dtype)
 
     utils.gems_assert_equal(res_out, ref_out)
@@ -71,8 +76,13 @@ def test_rowwise_prune_all_kept(shape, dtype):
     ref_out, ref_indices = _reference_rowwise_prune(
         utils.to_reference(weight).cpu(), utils.to_reference(mask).cpu(), torch.int32
     )
-    ref_out = ref_out.to(device=flag_gems.device, dtype=dtype)
-    ref_indices = ref_indices.to(device=flag_gems.device)
+    ref_out = ref_out.to(dtype=dtype)
+    ref_indices = ref_indices.to(dtype=torch.int32)
+    # Keep the reference on the test device, but on CPU under --ref cpu so
+    # to_cpu()'s device assertion in gems_assert_equal holds.
+    if not utils.TO_CPU:
+        ref_out = ref_out.to(device=flag_gems.device)
+        ref_indices = ref_indices.to(device=flag_gems.device)
     res_out, res_indices = flag_gems._rowwise_prune(weight, mask, torch.int32)
 
     utils.gems_assert_equal(res_out, ref_out)
@@ -90,8 +100,13 @@ def test_rowwise_prune_none_kept(shape, dtype):
     ref_out, ref_indices = _reference_rowwise_prune(
         utils.to_reference(weight).cpu(), utils.to_reference(mask).cpu(), torch.int64
     )
-    ref_out = ref_out.to(device=flag_gems.device, dtype=dtype)
-    ref_indices = ref_indices.to(device=flag_gems.device)
+    ref_out = ref_out.to(dtype=dtype)
+    ref_indices = ref_indices.to(dtype=torch.int64)
+    # Keep the reference on the test device, but on CPU under --ref cpu so
+    # to_cpu()'s device assertion in gems_assert_equal holds.
+    if not utils.TO_CPU:
+        ref_out = ref_out.to(device=flag_gems.device)
+        ref_indices = ref_indices.to(device=flag_gems.device)
     res_out, res_indices = flag_gems._rowwise_prune(weight, mask, torch.int64)
 
     assert res_out.shape == (0, K)
