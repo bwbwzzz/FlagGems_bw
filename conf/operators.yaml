@@ -14050,18 +14050,6 @@ ops:
   stages:
   - alpha: '5.5.0'
 - id: rrelu_with_noise
-  description: 'Triton kernel implementation for rrelu_with_noise
-    '
-  for:
-  - _rowwise_prune
-  labels:
-  - aten
-  - KernelGen
-  kind:
-  - Tensor
-  stages:
-  - alpha: '5.5.0'
-- id: rrelu_with_noise
   description: 'Triton kernel implementation for rrelu_with_noise '
   for:
   - rrelu_with_noise
