@@ -3552,4 +3552,3 @@ rnn_relu_cell:
       BLOCK_SIZE_K: 32
     num_stages: 5
     num_warps: 2
-
