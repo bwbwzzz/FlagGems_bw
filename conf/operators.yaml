@@ -12531,6 +12531,14 @@ ops:
     identified by the (seed, offset) pair in `key`.
   for:
   - _philox_normal_
+  labels:
+  - aten
+  - KernelGen
+  - pointwise
+  kind:
+  - Distribution
+  stages:
+  - alpha: '5.5.0'
 - id: philox_uniform_
   description: |
     Fills the tensor in place with samples from a uniform distribution over
