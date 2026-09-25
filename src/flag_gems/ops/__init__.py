@@ -1005,6 +1005,7 @@ from flag_gems.ops.row_indices import row_indices
 from flag_gems.ops.row_indices_copy import row_indices_copy, row_indices_copy_out
 from flag_gems.ops.row_stack import row_stack, row_stack_out
 from flag_gems.ops.rrelu import rrelu
+from flag_gems.ops.rrelu_ import rrelu_
 from flag_gems.ops.rrelu_with_noise import rrelu_with_noise, rrelu_with_noise_
 from flag_gems.ops.rrelu_with_noise_backward import rrelu_with_noise_backward
 from flag_gems.ops.rrelu_with_noise_functional import rrelu_with_noise_functional
