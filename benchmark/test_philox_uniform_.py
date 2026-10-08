@@ -55,7 +55,7 @@ def _philox_uniform_op(self, key, low=0.0, high=1.0):
     return torch.ops.aten._philox_uniform_(self, key, low, high)
 
 
-@pytest.mark.philox_uniform_
+@pytest.mark.underscore_philox_uniform_
 @pytest.mark.parametrize("dtype", consts.FLOAT_DTYPES)
 def test_philox_uniform_(dtype):
     bench = PhiloxUniformBenchmark(
