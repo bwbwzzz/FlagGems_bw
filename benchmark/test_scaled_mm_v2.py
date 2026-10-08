@@ -124,7 +124,7 @@ class ScaledMMV2Benchmark(base.Benchmark):
         return 2 * m_size * n_size * k_size
 
 
-@pytest.mark.scaled_mm_v2
+@pytest.mark.underscore_scaled_mm_v2
 @pytest.mark.parametrize("recipe", [RECIPE_TENSOR_WISE, RECIPE_ROW_WISE])
 @pytest.mark.skipif(
     not _native_benchmark_available(),
