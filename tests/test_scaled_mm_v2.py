@@ -136,7 +136,7 @@ def _run(mat_a, mat_b, scale_a, scale_b, bias, out_dtype, recipe_a, recipe_b, op
     )
 
 
-@pytest.mark.scaled_mm_v2
+@pytest.mark.underscore_scaled_mm_v2
 @pytest.mark.parametrize("scale_mode,recipe", [("tensorwise", 0), ("rowwise", 1)])
 @pytest.mark.parametrize("M, N, K", SCALED_MM_V2_SHAPES)
 @pytest.mark.parametrize("dtype", _dtype_cases())
@@ -166,7 +166,7 @@ def test_scaled_mm_v2(M, N, K, dtype, scale_mode, recipe):
     torch.testing.assert_close(res.float().cpu(), ref, atol=2.5e-1, rtol=5e-1)
 
 
-@pytest.mark.scaled_mm_v2
+@pytest.mark.underscore_scaled_mm_v2
 @pytest.mark.parametrize("out_dtype", [torch.float32, torch.float16])
 @pytest.mark.parametrize("dtype", _dtype_cases())
 def test_scaled_mm_v2_bias(dtype, out_dtype):
@@ -194,7 +194,7 @@ def test_scaled_mm_v2_bias(dtype, out_dtype):
     torch.testing.assert_close(res.float().cpu(), ref, atol=2.5e-1, rtol=5e-1)
 
 
-@pytest.mark.scaled_mm_v2
+@pytest.mark.underscore_scaled_mm_v2
 @pytest.mark.parametrize("scale_mode,recipe", [("tensorwise", 0), ("rowwise", 1)])
 @pytest.mark.parametrize("M, N, K", ALIGNED_SHAPES)
 @pytest.mark.parametrize("dtype", _dtype_cases())
