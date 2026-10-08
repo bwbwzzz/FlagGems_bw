@@ -159,7 +159,7 @@ def _make_key(seed, offset, device):
     return torch.tensor([seed, offset], dtype=torch.uint64, device=device)
 
 
-@pytest.mark.philox_uniform_
+@pytest.mark.underscore_philox_uniform_
 @pytest.mark.parametrize("shape", utils.DISTRIBUTION_SHAPES)
 @pytest.mark.parametrize("dtype", utils.FLOAT_DTYPES)
 def test_philox_uniform_(shape, dtype):
@@ -176,7 +176,7 @@ def test_philox_uniform_(shape, dtype):
     utils.gems_assert_close(res_out, ref_out, dtype)
 
 
-@pytest.mark.philox_uniform_
+@pytest.mark.underscore_philox_uniform_
 @pytest.mark.parametrize("shape", utils.DISTRIBUTION_SHAPES)
 @pytest.mark.parametrize("dtype", utils.ALL_FLOAT_DTYPES)
 def test_philox_uniform_default_params(shape, dtype):
@@ -192,7 +192,7 @@ def test_philox_uniform_default_params(shape, dtype):
     utils.gems_assert_close(res_out, ref_out, dtype)
 
 
-@pytest.mark.philox_uniform_
+@pytest.mark.underscore_philox_uniform_
 def test_philox_uniform_inplace_semantics():
     """The operator mutates ``self`` in place and returns that same tensor."""
     key = _make_key(99, 0, flag_gems.device)
@@ -206,7 +206,7 @@ def test_philox_uniform_inplace_semantics():
     utils.gems_assert_close(inp, ref_out, torch.float32)
 
 
-@pytest.mark.philox_uniform_
+@pytest.mark.underscore_philox_uniform_
 def test_philox_uniform_value_range():
     """Samples always land in [low, high) regardless of the stream state."""
     for dtype in (torch.float16, torch.float32, torch.bfloat16):
@@ -223,7 +223,7 @@ def test_philox_uniform_value_range():
             assert outf.max().item() < high
 
 
-@pytest.mark.philox_uniform_
+@pytest.mark.underscore_philox_uniform_
 def test_philox_uniform_batched_key():
     """A ``(*batch, 1..., 2)`` key gives each output block its own stream.
 
@@ -251,7 +251,7 @@ def test_philox_uniform_batched_key():
     utils.gems_assert_close(res_out, expected, torch_dtype)
 
 
-@pytest.mark.philox_uniform_
+@pytest.mark.underscore_philox_uniform_
 def test_philox_uniform_stream_continuity():
     """Consecutive offsets pick up the stream exactly where the last left off."""
     torch_dtype = torch.float32
@@ -271,7 +271,7 @@ def test_philox_uniform_stream_continuity():
     utils.gems_assert_close(second, expected_second, torch_dtype)
 
 
-@pytest.mark.philox_uniform_
+@pytest.mark.underscore_philox_uniform_
 def test_philox_uniform_large_offset():
     """Offsets beyond 2**32 keep generating a continuous stream."""
     torch_dtype = torch.float32
