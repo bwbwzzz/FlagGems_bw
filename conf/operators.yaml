@@ -260,7 +260,7 @@ ops:
   kind:
   - BLAS
   stages:
-  - alpha: '5.5'
+  - alpha: '5.5.0'
 - id: _stack
   description: |
     Concatenates a sequence of tensors along a new dimension. This is the
