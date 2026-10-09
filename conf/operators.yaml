@@ -14511,7 +14511,7 @@ ops:
   kind:
   - Math
   stages:
-  - alpha: '5.4'
+  - alpha: '5.5.0'
 - id: special_modified_bessel_i1_out
   description: 'A variant of `special_modified_bessel_i1()` with output saved to
 
@@ -14527,7 +14527,7 @@ ops:
   kind:
   - Math
   stages:
-  - alpha: '5.4'
+  - alpha: '5.5.0'
 - id: special_modified_bessel_k0
   description: Triton kernel implementation for special_modified_bessel_k0.
   for:
