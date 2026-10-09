@@ -76,9 +76,13 @@ def test_rnn_relu_cell(shape, dtype, has_bias):
     )
     res_out = flag_gems.rnn_relu_cell(inp, hx, w_ih, w_hh, b_ih, b_hh)
 
-    # The Triton kernel uses fp32 accumulation with tf32 disabled, matching the
-    # upcast reference closely; keep a small safety margin for fp16/bf16.
-    utils.gems_assert_close(res_out, ref_out, dtype)
+    # The cell performs two chained reductions (input @ w_ih^T over input_size
+    # and hx @ w_hh^T over hidden_size), so the fp32 accumulation drifts from the
+    # fp64 reference proportionally to the combined reduction length. Scale atol
+    # by that length, matching the addmm/gru_cell tests' reduce_dim convention.
+    utils.gems_assert_close(
+        res_out, ref_out, dtype, reduce_dim=input_size + hidden_size
+    )
 
 
 @pytest.mark.skipif(
@@ -110,7 +114,7 @@ def test_rnn_relu_cell_bias_1d_and_2d():
         inp, hx, w_ih, w_hh, b_ih.unsqueeze(0), b_hh.unsqueeze(0)
     )
 
-    utils.gems_assert_close(res_1d, ref_out, dtype)
+    utils.gems_assert_close(res_1d, ref_out, dtype, reduce_dim=input_size + hidden_size)
     utils.gems_assert_equal(res_2d, res_1d)
 
 
@@ -119,10 +123,10 @@ def test_rnn_relu_cell_bias_1d_and_2d():
     reason="Triton kernel is CUDA-only",
 )
 @pytest.mark.rnn_relu_cell
-def test_rnn_relu_cell_smoke_cell_module():
+@pytest.mark.parametrize("dtype", utils.FLOAT_DTYPES)
+def test_rnn_relu_cell_smoke_cell_module(dtype):
     """Smoke test: one step of torch.nn.RNNCell (ReLU) equals rnn_relu_cell."""
     batch, input_size, hidden_size = 4, 8, 8
-    dtype = torch.float32
     cell = torch.nn.RNNCell(input_size, hidden_size, nonlinearity="relu").to(
         dtype=dtype, device=flag_gems.device
     )
@@ -134,4 +138,6 @@ def test_rnn_relu_cell_smoke_cell_module():
         inp, hx, cell.weight_ih, cell.weight_hh, cell.bias_ih, cell.bias_hh
     )
 
-    utils.gems_assert_close(res_out, ref_out, dtype)
+    utils.gems_assert_close(
+        res_out, ref_out, dtype, reduce_dim=input_size + hidden_size
+    )
