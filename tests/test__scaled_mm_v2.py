@@ -34,6 +34,7 @@ import torch
 
 import flag_gems
 
+from . import accuracy_utils as utils
 from .conftest import QUICK_MODE
 
 if QUICK_MODE:
@@ -161,9 +162,11 @@ def test_scaled_mm_v2(M, N, K, dtype, scale_mode, recipe):
     assert res.shape == (M, N)
     assert res.dtype == torch.bfloat16
     # fp8 operands accumulate in float32 but the reference rounds to bf16, so
-    # the comparison has to tolerate the ~1e-2 resolution bf16 carries at the
-    # magnitudes this GEMM produces.
-    torch.testing.assert_close(res.float().cpu(), ref, atol=2.5e-1, rtol=5e-1)
+    # the comparison tolerates the ~1e-2 resolution bf16 carries at the
+    # magnitudes this GEMM produces; ``reduce_dim=K`` scales atol with the
+    # contraction length the accumulation runs over.
+    ref = ref if utils.TO_CPU else ref.to(flag_gems.device)
+    utils.gems_assert_close(res, ref, torch.bfloat16, reduce_dim=K)
 
 
 @pytest.mark.scaled_mm_v2
@@ -191,7 +194,8 @@ def test_scaled_mm_v2_bias(dtype, out_dtype):
 
     assert res.shape == (M, N)
     assert res.dtype == out_dtype
-    torch.testing.assert_close(res.float().cpu(), ref, atol=2.5e-1, rtol=5e-1)
+    ref = ref if utils.TO_CPU else ref.to(flag_gems.device)
+    utils.gems_assert_close(res, ref, out_dtype, reduce_dim=K)
 
 
 @pytest.mark.scaled_mm_v2
@@ -226,6 +230,5 @@ def test_scaled_mm_v2_vs_torch(M, N, K, dtype, scale_mode, recipe):
         op=flag_gems._scaled_mm_v2,
     )
 
-    torch.testing.assert_close(
-        res.float().cpu(), ref.float().cpu(), atol=2.5e-1, rtol=5e-1
-    )
+    ref = ref if utils.TO_CPU else ref.to(flag_gems.device)
+    utils.gems_assert_close(res, ref, torch.bfloat16, reduce_dim=K)
