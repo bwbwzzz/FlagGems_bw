@@ -136,12 +136,12 @@ def test_rnn_tanh_cell_direct_wrapper(
     reason="Triton kernel is CUDA-only",
 )
 @pytest.mark.rnn_tanh_cell
-def test_rnn_tanh_cell_no_bias_matches_explicit_zero_bias():
+@pytest.mark.parametrize("dtype", utils.FLOAT_DTYPES)
+def test_rnn_tanh_cell_no_bias_matches_explicit_zero_bias(dtype):
     """b_ih=None/b_hh=None must be equivalent to passing zero biases."""
     from flag_gems.ops.rnn_tanh_cell import rnn_tanh_cell as gems_rnn_tanh_cell
 
     batch_size, input_size, hidden_size = 4, 16, 12
-    dtype = torch.float32
 
     inp, hx, w_ih, w_hh, _, _ = _make_inputs(
         batch_size, input_size, hidden_size, dtype, True
@@ -160,18 +160,30 @@ def test_rnn_tanh_cell_no_bias_matches_explicit_zero_bias():
 )
 @pytest.mark.rnn_tanh_cell
 @pytest.mark.parametrize("hidden_size", [7, 33, 100, 257])
-def test_rnn_tanh_cell_masked_hidden_size(hidden_size):
+@pytest.mark.parametrize("dtype", utils.FLOAT_DTYPES)
+def test_rnn_tanh_cell_masked_hidden_size(hidden_size, dtype):
     """Regression: hidden_size not divisible by BLOCK_H must be masked correctly."""
     from flag_gems.ops.rnn_tanh_cell import rnn_tanh_cell as gems_rnn_tanh_cell
 
     batch_size, input_size = 3, 13
-    dtype = torch.float32
 
     inp, hx, w_ih, w_hh, b_ih, b_hh = _make_inputs(
         batch_size, input_size, hidden_size, dtype, True
     )
 
     out_gems = gems_rnn_tanh_cell(inp, hx, w_ih, w_hh, b_ih, b_hh)
-    ref = torch.rnn_tanh_cell(inp, hx, w_ih, w_hh, b_ih, b_hh)
+    # Compare against a high-precision (fp64) reference like the other tests in
+    # this file: the Triton kernel accumulates in float32, so a non-upcast bf16
+    # reference would itself round every intermediate gate product and double
+    # the apparent error over this test's long (input_size + hidden_size)
+    # reduction, which is unrelated to the masking behavior under test.
+    ref = torch.rnn_tanh_cell(
+        utils.to_reference(inp, upcast=True),
+        utils.to_reference(hx, upcast=True),
+        utils.to_reference(w_ih, upcast=True),
+        utils.to_reference(w_hh, upcast=True),
+        utils.to_reference(b_ih, upcast=True),
+        utils.to_reference(b_hh, upcast=True),
+    )
 
     utils.gems_assert_close(out_gems, ref, dtype, atol=_ATOL[dtype])
