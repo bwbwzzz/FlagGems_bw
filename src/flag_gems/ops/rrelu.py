@@ -45,6 +45,9 @@ def _check_args(lower, upper, generator):
     assert lower <= upper, "lower must be no greater than upper"
 
 
+# Default lower=1/8 and upper=1/3 mirror the aten::rrelu schema:
+# aten::rrelu(Tensor self, Scalar lower=0.125, Scalar upper=0.33333333333333331,
+#             bool training=False, Generator? generator=None) -> Tensor
 def rrelu(self, lower=0.125, upper=0.33333333333333331, training=False, generator=None):
     logger.debug("GEMS RRELU")
     _check_args(lower, upper, generator)
@@ -58,6 +61,7 @@ def rrelu(self, lower=0.125, upper=0.33333333333333331, training=False, generato
         return rrelu_forward(self, slope)
 
 
+# Default lower=1/8 and upper=1/3 mirror the aten::rrelu_ schema (same as rrelu).
 def rrelu_(
     self, lower=0.125, upper=0.33333333333333331, training=False, generator=None
 ):
