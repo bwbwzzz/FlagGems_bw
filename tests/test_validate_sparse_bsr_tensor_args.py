@@ -86,6 +86,8 @@ def test_validate_sparse_bsr_tensor_args(index_dtype, shape, strided_batch, dtyp
         comp, plain, values, size, check_pinning=False
     )
     assert res is ref is None
+    # Returning None does not mean the asynchronous device validation completed.
+    # Synchronize here so any device assertion is reported by this test.
     flag_gems.runtime.torch_device_fn.synchronize()
     for tensor, snapshot in zip((comp, plain, values), snapshots):
         utils.gems_assert_equal(tensor, utils.to_reference(snapshot))
@@ -173,7 +175,7 @@ def test_validate_sparse_bsr_tensor_args_invalid_indices(case, index_dtype):
     with pytest.raises(RuntimeError):
         torch.ops.aten._validate_sparse_bsr_tensor_args.default(*args)
     # A device assertion invalidates the CUDA context. Isolate each failure.
-    child = (
+    child_code = (
         """
 import sys, resource
 resource.setrlimit(resource.RLIMIT_CORE, (0, 0))
@@ -198,7 +200,7 @@ flag_gems.runtime.torch_device_fn.synchronize()
         )
     )
     result = subprocess.run(
-        [sys.executable, "-c", child, case, str(index_dtype).split(".")[-1]],
+        [sys.executable, "-c", child_code, case, str(index_dtype).split(".")[-1]],
         env=child_env,
         capture_output=True,
         text=True,
