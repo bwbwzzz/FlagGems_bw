@@ -85,6 +85,8 @@ def test_validate_compressed_sparse_indices(index_dtype, shape, strided_batch):
         True, comp, plain, shape[0], shape[1], plain.shape[-1]
     )
     assert res is ref is None
+    # Returning None does not mean the asynchronous device validation completed.
+    # Synchronize here so any device assertion is reported by this test.
     flag_gems.runtime.torch_device_fn.synchronize()
     for tensor, snapshot in zip((comp, plain, values), snapshots):
         utils.gems_assert_equal(tensor, utils.to_reference(snapshot))
@@ -94,8 +96,9 @@ def test_validate_compressed_sparse_indices(index_dtype, shape, strided_batch):
 @pytest.mark.underscore_validate_compressed_sparse_indices
 @pytest.mark.parametrize("case", ["endpoint", "bounds", "duplicate"])
 def test_validate_compressed_sparse_indices_invalid_indices(case):
-    # ATen CUDA failures poison a CUDA context. Check the independent native
-    # CPU reference here, and run each candidate assertion in a fresh process.
+    # Device assertions leave the CUDA context in a sticky error state.
+    # Use the native CPU reference here and isolate each GPU failure in a
+    # child process so subsequent tests retain a usable CUDA context.
     comp = torch.tensor([0, 2, 3], dtype=torch.int64)
     plain = torch.tensor([0, 1, 0], dtype=torch.int64)
     if case == "endpoint":
@@ -108,7 +111,7 @@ def test_validate_compressed_sparse_indices_invalid_indices(case):
         torch.ops.aten._validate_compressed_sparse_indices.default(
             True, comp, plain, 2, 3, 3
         )
-    child = """
+    child_code = """
 import os, sys, resource
 resource.setrlimit(resource.RLIMIT_CORE, (0, 0))
 import torch
@@ -138,7 +141,7 @@ flag_gems.runtime.torch_device_fn.synchronize()
         )
     )
     result = subprocess.run(
-        [sys.executable, "-c", child, case],
+        [sys.executable, "-c", child_code, case],
         env=child_env,
         capture_output=True,
         text=True,
