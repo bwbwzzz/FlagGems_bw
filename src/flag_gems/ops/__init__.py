@@ -278,6 +278,7 @@ from flag_gems.ops._histogramdd_from_bin_tensors import (
     _histogramdd_from_bin_tensors_out,
 )
 from flag_gems.ops._is_all_true import _is_all_true
+from flag_gems.ops._is_any_true import _is_any_true
 from flag_gems.ops._jagged_to_padded_dense_forward import (
     _jagged_to_padded_dense_forward,
 )
@@ -377,9 +378,11 @@ from flag_gems.ops._sobol_engine_initialize_state_ import (
     _sobol_engine_initialize_state_,
 )
 from flag_gems.ops._sobol_engine_scramble_ import _sobol_engine_scramble_
+from flag_gems.ops._sparse_mm_reduce_impl import _sparse_mm_reduce_impl
 from flag_gems.ops._sparse_semi_structured_addmm import _sparse_semi_structured_addmm
 from flag_gems.ops._sparse_semi_structured_linear import _sparse_semi_structured_linear
 from flag_gems.ops._sparse_semi_structured_mm import _sparse_semi_structured_mm
+from flag_gems.ops._sparse_semi_structured_tile import _sparse_semi_structured_tile
 from flag_gems.ops._spsolve import spsolve
 from flag_gems.ops._stack import _stack
 from flag_gems.ops._standard_gamma import standard_gamma
@@ -428,6 +431,9 @@ from flag_gems.ops._upsample_nearest_exact3d_backward import (
 from flag_gems.ops._validate_sparse_coo_tensor_args import (
     _validate_sparse_coo_tensor_args,
 )
+from flag_gems.ops._validate_sparse_csc_tensor_args import (
+    _validate_sparse_csc_tensor_args,
+)
 from flag_gems.ops._values_copy import _values_copy, _values_copy_out
 from flag_gems.ops._weight_int4pack_mm_with_scales_and_zeros import (
     _weight_int4pack_mm_with_scales_and_zeros,
@@ -446,6 +452,9 @@ from flag_gems.ops.acos import acos
 from flag_gems.ops.acos_ import acos_
 from flag_gems.ops.acosh import acosh, acosh_
 from flag_gems.ops.adaptive_avg_pool1d import adaptive_avg_pool1d
+from flag_gems.ops.adaptive_avg_pool2d import (
+    _adaptive_avg_pool2d_out as adaptive_avg_pool2d_out,
+)
 from flag_gems.ops.adaptive_avg_pool2d import adaptive_avg_pool2d
 from flag_gems.ops.adaptive_avg_pool3d_backward import (
     _adaptive_avg_pool3d_backward,
@@ -623,6 +632,10 @@ from flag_gems.ops.convert_indices_from_csr_to_coo import (
     _convert_indices_from_csr_to_coo_out,
 )
 from flag_gems.ops.convolution import convolution
+from flag_gems.ops.convolution_backward import (
+    convolution_backward,
+    convolution_backward_out,
+)
 from flag_gems.ops.convolution_backward_overrideable import (
     convolution_backward_overrideable,
     convolution_backward_overrideable_out,
@@ -895,6 +908,7 @@ from flag_gems.ops.infinitely_differentiable_gelu_backward import (
 )
 from flag_gems.ops.inner import inner
 from flag_gems.ops.int_mm import int_mm, int_mm_out
+from flag_gems.ops.int_repr import int_repr
 from flag_gems.ops.inverse import inverse
 from flag_gems.ops.ior_scalar import ior_scalar
 from flag_gems.ops.ior_tensor import ior_tensor
@@ -1351,6 +1365,7 @@ from flag_gems.ops.softshrink_backward import softshrink_backward
 from flag_gems.ops.sort import sort, sort_stable
 from flag_gems.ops.sparse_broadcast_to import sparse_broadcast_to
 from flag_gems.ops.sparse_bsc_tensor import sparse_bsc_tensor
+from flag_gems.ops.sparse_bsr_tensor import sparse_bsr_tensor
 from flag_gems.ops.sparse_dim import sparse_dim
 from flag_gems.ops.sparse_sampled_addmm import (
     sparse_sampled_addmm,
@@ -1847,6 +1862,7 @@ __all__ = [
     "_histogramdd_from_bin_tensors_out",
     "_index_put_impl_",
     "_is_all_true",
+    "_is_any_true",
     "_jagged_to_padded_dense_forward",
     "_linalg_det",
     "_linalg_eigh",
@@ -1918,9 +1934,11 @@ __all__ = [
     "_sobol_engine_ff_",
     "_sobol_engine_initialize_state_",
     "_sobol_engine_scramble_",
+    "_sparse_mm_reduce_impl",
     "_sparse_semi_structured_addmm",
     "_sparse_semi_structured_linear",
     "_sparse_semi_structured_mm",
+    "_sparse_semi_structured_tile",
     "_stack",
     "_thnn_differentiable_gru_cell_backward",
     "_thnn_differentiable_lstm_cell_backward",
@@ -1955,6 +1973,7 @@ __all__ = [
     "_upsample_nearest_exact3d_backward",
     "_upsample_nearest_exact3d_backward_grad_input",
     "_validate_sparse_coo_tensor_args",
+    "_validate_sparse_csc_tensor_args",
     "_values_copy",
     "_values_copy_out",
     "_weight_int4pack_mm_with_scales_and_zeros",
@@ -1971,6 +1990,7 @@ __all__ = [
     "acosh_",
     "adaptive_avg_pool1d",
     "adaptive_avg_pool2d",
+    "adaptive_avg_pool2d_out",
     "adaptive_avg_pool3d",
     "adaptive_avg_pool3d_backward_grad_input",
     "adaptive_avg_pool3d_out",
@@ -2172,6 +2192,8 @@ __all__ = [
     "conv_transpose2d",
     "conv_transpose3d",
     "convolution",
+    "convolution_backward",
+    "convolution_backward_out",
     "convolution_backward_overrideable",
     "convolution_backward_overrideable_out",
     "convolution_overrideable",
@@ -2466,6 +2488,7 @@ __all__ = [
     "inner",
     "int_mm",
     "int_mm_out",
+    "int_repr",
     "inverse",
     "ior_scalar",
     "ior_tensor",
@@ -2979,6 +3002,7 @@ __all__ = [
     "sort_stable",
     "sparse_broadcast_to",
     "sparse_bsc_tensor",
+    "sparse_bsr_tensor",
     "sparse_dim",
     "sparse_sampled_addmm",
     "sparse_sampled_addmm_out",

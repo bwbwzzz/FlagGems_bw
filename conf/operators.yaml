@@ -639,6 +639,20 @@ tensor into the caller-supplied `out` buffer.
   - NeuralNetwork
   stages:
   - alpha: '5.4'
+- id: adaptive_avg_pool2d_out
+  description: 'Apply a 2D adaptive average pooling over an input signal composed
+    of several input planes, writing the result into a pre-allocated output tensor.
+
+    '
+  for:
+  - _adaptive_avg_pool2d.out
+  labels:
+  - aten
+  - KernelGen
+  kind:
+  - NeuralNetwork
+  stages:
+  - alpha: '5.5'
 - id: adaptive_avg_pool3d
   description: 'Applies a three-dimensional adaptive average pooling over an input
     signal composed of several input planes, producing an output of the requested
@@ -3843,6 +3857,26 @@ tensor into the caller-supplied `out` buffer.
   labels:
   - aten
   - KernelGen
+  kind:
+  - Convolution
+  stages:
+  - alpha: '5.5'
+- id: convolution_backward
+  description: Computes input, weight and bias gradients for batched 1D, 2D and 3D convolutions.
+  for:
+  - convolution_backward
+  labels:
+  - aten
+  kind:
+  - Convolution
+  stages:
+  - alpha: '5.5'
+- id: convolution_backward_out
+  description: Writes convolution gradients into the requested output tensors.
+  for:
+  - convolution_backward.out
+  labels:
+  - aten
   kind:
   - Convolution
   stages:
@@ -10602,6 +10636,31 @@ primal value saved by `fw_primal` into the caller-supplied `out` buffer.
   - BLAS
   stages:
   - alpha: '5.5'
+- id: int_repr
+  description: |
+    Returns the raw integer codes stored by an affine-quantized tensor, mapping
+    quint8/qint8/qint32 storage to uint8/int8/int32 without applying the scale
+    or zero point.
+  for:
+  - int_repr
+  labels:
+  - aten
+  - KernelGen
+  kind:
+  - Tensor
+  stages:
+  - alpha: '5.5'
+- id: int_repr_out
+  description: A variant of `int_repr` that writes the result into the `out` tensor.
+  for:
+  - int_repr.out
+  labels:
+  - aten
+  - KernelGen
+  kind:
+  - Tensor
+  stages:
+  - alpha: '5.5'
 - id: inverse
   description: |
     Computes the inverse of a square matrix, batched over the leading dimensions
@@ -10666,6 +10725,18 @@ primal value saved by `fw_primal` into the caller-supplied `out` buffer.
   - Tensor
   stages:
   - beta: '5.3'
+- id: is_any_true
+  description: |
+    Return whether any logical element of a boolean tensor is true.
+  for:
+    - _is_any_true
+  labels:
+    - aten
+    - KernelGen
+  kind:
+    - Reduction
+  stages:
+    - alpha: '5.5.0'
 - id: is_nonzero
   description: Returns True if the single-element input tensor is not equal to zero.
   for:
@@ -18723,6 +18794,23 @@ primal value saved by `fw_primal` into the caller-supplied `out` buffer.
   - Tensor
   stages:
   - alpha: '5.5'
+- id: sparse_bsr_tensor
+  description: 'Assembles a block-compressed sparse row (BSR) tensor from its stored
+    components: the block-row pointers (crow_indices), the block-column indices
+    (col_indices) and the block payload (values), with an optional explicit logical
+    size.
+
+    '
+  for:
+  - sparse_bsr_tensor.crow_col_value
+  - sparse_bsr_tensor.crow_col_value_size
+  labels:
+  - aten
+  - KernelGen
+  kind:
+  - Tensor
+  stages:
+  - alpha: '5.5'
 - id: sparse_dim
   description: 'Returns the number of sparse dimensions of a tensor: 0 for strided
     tensors, the index count for sparse COO, 2 for compressed layouts.
@@ -18753,6 +18841,22 @@ primal value saved by `fw_primal` into the caller-supplied `out` buffer.
   stages:
   - beta: '5.0'
   - stable: '5.3'
+- id: sparse_mm_reduce_impl
+  description: |
+    Backend of aten::_sparse_mm.reduce: computes the sparse-times-dense
+    product of a 2-D CSR tensor (M, K) and a dense (K, N) matrix with a
+    sum / mean / amax / amin reduction over each row's stored nnz products,
+    returning the (output, arg_out) pair. arg_out mirrors aten's contract
+    (empty int64 tensor outside grad mode).
+  for:
+  - _sparse_mm_reduce_impl
+  labels:
+  - aten
+  - KernelGen
+  kind:
+  - BLAS
+  stages:
+  - alpha: '5.5'
 - id: sparse_sampled_addmm
   description: 'Computes alpha * (mat1 @ mat2) * spy(input) + beta * input, where
     input is a sparse CSR tensor
@@ -18826,6 +18930,22 @@ primal value saved by `fw_primal` into the caller-supplied `out` buffer.
   - BLAS
   stages:
   - alpha: '5.4'
+- id: sparse_semi_structured_tile
+  description: 'Prunes a dense fp16/bf16 matrix to the 2:4 semi-structured sparsity
+    pattern (greedy 4x4-tile largest-values selection) and packs it into the CUTLASS
+    compressed representation: packed values, int16 metadata, the transposed pair,
+    and the per-thread 8x8 selection bitmasks.
+
+    '
+  for:
+  - _sparse_semi_structured_tile
+  labels:
+  - aten
+  - KernelGen
+  kind:
+  - BLAS
+  stages:
+  - alpha: '5.5'
 - id: spdiags
   description: Triton kernel implementation for _spdiags that builds a sparse matrix
     from diagonals.
@@ -22010,6 +22130,18 @@ primal value saved by `fw_primal` into the caller-supplied `out` buffer.
     Validate sparse tensor arguments and index invariants without modifying inputs.
   for:
     - _validate_sparse_coo_tensor_args
+  labels:
+    - aten
+    - KernelGen
+  kind:
+    - Tensor
+  stages:
+    - alpha: '5.5.0'
+- id: validate_sparse_csc_tensor_args
+  description: |
+    Validate sparse tensor arguments and index invariants without modifying inputs.
+  for:
+    - _validate_sparse_csc_tensor_args
   labels:
     - aten
     - KernelGen
