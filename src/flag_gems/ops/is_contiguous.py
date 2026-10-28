@@ -70,6 +70,11 @@ def is_contiguous(self: torch.Tensor) -> bool:
     This is a pure TensorImpl metadata query. It mirrors PyTorch's contiguity
     recurrence from sizes and strides instead of forwarding to
     ``Tensor.is_contiguous`` or redispatching ``aten::is_contiguous``.
+
+    PyTorch exposes this operator through manual C++ bindings in the current
+    build, so the Tensor method and torch.ops packet bypass backend
+    registration. This implementation is therefore exercised through the
+    direct FlagGems API, and tests pin that registration limitation.
     """
     logger.debug("GEMS IS_CONTIGUOUS")
     return _is_contiguous_for_format(self, torch.contiguous_format)
