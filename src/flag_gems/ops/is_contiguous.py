@@ -21,15 +21,68 @@ import torch
 logger = logging.getLogger(__name__)
 
 
-def is_contiguous(self):
-    """Read the cached standard-layout TensorImpl contiguity flag."""
+def _is_contiguous_in_order(sizes, strides, order):
+    expected_stride = 1
+    for dim in order:
+        size = sizes[dim]
+        if size == 1:
+            continue
+        if strides[dim] != expected_stride:
+            return False
+        expected_stride *= size
+    return True
+
+
+def _is_contiguous_for_format(self, memory_format):
+    if self is None:
+        return memory_format in (torch.contiguous_format, torch.preserve_format)
+
+    # NestedTensorImpl defines every memory-format query as contiguous even
+    # though it deliberately has no uniform sizes/strides array to inspect.
+    if self.is_nested:
+        return True
+
+    # MkldnnTensorImpl exposes opaque strides. Its native contract is
+    # contiguous/preserve=True and channels-last=False.
+    if self.is_mkldnn:
+        return memory_format in (torch.contiguous_format, torch.preserve_format)
+
+    # SparseTensorImpl reports false. Sparse-compressed layouts intentionally
+    # fall through to stride(), which raises the same unsupported-layout error
+    # as native is_contiguous.
+    if self.layout == torch.sparse_coo:
+        return False
+
+    sizes = tuple(self.shape)
+    strides = self.stride()
+    if memory_format in (torch.contiguous_format, torch.preserve_format):
+        if any(size == 0 for size in sizes):
+            return True
+        return _is_contiguous_in_order(sizes, strides, range(len(sizes) - 1, -1, -1))
+    if memory_format == torch.channels_last:
+        return len(sizes) == 4 and _is_contiguous_in_order(sizes, strides, (1, 3, 2, 0))
+    return len(sizes) == 5 and _is_contiguous_in_order(sizes, strides, (1, 4, 3, 2, 0))
+
+
+def is_contiguous(self: torch.Tensor) -> bool:
+    """Return whether ``self`` has standard contiguous strides.
+
+    This is a pure TensorImpl metadata query. It mirrors PyTorch's contiguity
+    recurrence from sizes and strides instead of forwarding to
+    ``Tensor.is_contiguous`` or redispatching ``aten::is_contiguous``.
+    """
     logger.debug("GEMS IS_CONTIGUOUS")
-    # TensorBase's method reads metadata directly, without an ATen redispatch.
-    return True if self is None else torch.Tensor.is_contiguous(self)
+    return _is_contiguous_for_format(self, torch.contiguous_format)
 
 
-def is_contiguous_memory_format(self, memory_format):
-    """Read contiguity for the requested memory format without device work."""
+def is_contiguous_memory_format(
+    self: torch.Tensor, memory_format: torch.memory_format
+) -> bool:
+    """Return contiguity for a requested memory format from sizes/strides.
+
+    Integer memory-format codes match the native binding: 2 is channels-last,
+    3 is channels-last-3d, and every other integer selects standard layout.
+    """
     logger.debug("GEMS IS_CONTIGUOUS_MEMORY_FORMAT")
     if isinstance(memory_format, int):
         memory_format = {2: torch.channels_last, 3: torch.channels_last_3d}.get(
@@ -39,6 +92,4 @@ def is_contiguous_memory_format(self, memory_format):
         raise TypeError(
             "is_contiguous: memory_format must be a MemoryFormat or integer"
         )
-    if self is None:
-        return memory_format in (torch.contiguous_format, torch.preserve_format)
-    return torch.Tensor.is_contiguous(self, memory_format=memory_format)
+    return _is_contiguous_for_format(self, memory_format)

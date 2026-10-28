@@ -27,6 +27,7 @@ class MetadataBenchmark(base.Benchmark):
     def set_shapes(self, shape_file_path=None):
         # Small and large payloads demonstrate that metadata work is size independent.
         self.shapes = [(0,), (1,), (3, 4), (4096, 4096), (2, 3, 4, 5), (2, 3, 4, 5, 6)]
+        self.shape_desc = "shape"
 
     def get_input_iter(self, dtype):
         for i, shape in enumerate(self.shapes):
@@ -44,13 +45,15 @@ class MetadataBenchmark(base.Benchmark):
 
 @pytest.mark.is_contiguous
 def test_is_contiguous(monkeypatch):
-    # There is no GPU work to time; both paths use the existing operator timer.
+    # This is host metadata latency, not GPU throughput. Compare the direct
+    # native method and direct FlagGems API so neither side pays boxed dispatch.
     monkeypatch.setattr(Config, "mode", consts.BenchMode.OPERATOR)
     bench = MetadataBenchmark(
         op_name="is_contiguous",
-        torch_op=torch.ops.aten.is_contiguous.default,
+        torch_op=torch.Tensor.is_contiguous,
         gems_op=flag_gems.is_contiguous,
         dtypes=consts.FLOAT_DTYPES + consts.COMPLEX_DTYPES,
+        shape_desc="shape",
     )
     bench.run()
 
@@ -59,6 +62,7 @@ class MemoryFormatBenchmark(base.Benchmark):
     def set_shapes(self, shape_file_path=None):
         # Exercise rank-4 and rank-5 descriptors, including native channels-last layouts.
         self.shapes = [(2, 3, 4, 5), (2, 3, 4, 5, 6)]
+        self.shape_desc = "shape, memory_format"
 
     def get_input_iter(self, dtype):
         for shape in self.shapes:
@@ -78,8 +82,9 @@ def test_is_contiguous_memory_format(monkeypatch):
     monkeypatch.setattr(Config, "mode", consts.BenchMode.OPERATOR)
     bench = MemoryFormatBenchmark(
         op_name="is_contiguous_memory_format",
-        torch_op=torch.ops.aten.is_contiguous.memory_format,
+        torch_op=torch.Tensor.is_contiguous,
         gems_op=flag_gems.is_contiguous_memory_format,
         dtypes=consts.FLOAT_DTYPES,
+        shape_desc="shape, memory_format",
     )
     bench.run()

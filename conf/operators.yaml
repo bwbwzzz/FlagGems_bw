@@ -10805,7 +10805,7 @@ primal value saved by `fw_primal` into the caller-supplied `out` buffer.
     - alpha: '5.5.0'
 - id: is_contiguous
   description: |
-    Return tensor metadata without inspecting or mutating payload values.
+    Return whether a tensor has standard contiguous strides.
   for:
     - is_contiguous
   labels:
@@ -10817,7 +10817,7 @@ primal value saved by `fw_primal` into the caller-supplied `out` buffer.
     - alpha: '5.5.0'
 - id: is_contiguous_memory_format
   description: |
-    Return tensor metadata without inspecting or mutating payload values.
+    Return whether a tensor is contiguous in the requested memory format.
   for:
     - is_contiguous.memory_format
   labels:

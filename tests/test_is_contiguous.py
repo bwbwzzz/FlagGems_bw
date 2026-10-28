@@ -24,7 +24,11 @@ from . import accuracy_utils as utils
 
 
 class _RejectSameOperator(TorchDispatchMode):
+    def __init__(self):
+        self.seen = []
+
     def __torch_dispatch__(self, func, types, args=(), kwargs=None):
+        self.seen.append(func._schema.name)
         assert "aten.is_contiguous." not in str(
             func
         ), "candidate redispatched its own ATen operator"
@@ -59,9 +63,10 @@ def _inputs(shape, dtype):
 @pytest.mark.parametrize("shape", _SHAPES)
 def test_is_contiguous(dtype, shape):
     for inp in _inputs(shape, dtype):
-        with _RejectSameOperator():
+        with _RejectSameOperator() as mode:
             result = flag_gems.is_contiguous(inp)
         _assert_bool(result, torch.ops.aten.is_contiguous.default(inp))
+        assert "aten::is_contiguous" not in mode.seen
 
 
 @pytest.mark.is_contiguous
@@ -84,11 +89,12 @@ def test_is_contiguous(dtype, shape):
 )
 def test_is_contiguous_memory_format(dtype, shape, memory_format):
     for inp in _inputs(shape, dtype):
-        with _RejectSameOperator():
+        with _RejectSameOperator() as mode:
             result = flag_gems.is_contiguous_memory_format(inp, memory_format)
         _assert_bool(
             result, torch.ops.aten.is_contiguous.memory_format(inp, memory_format)
         )
+        assert "aten::is_contiguous" not in mode.seen
 
 
 @pytest.mark.is_contiguous
@@ -107,3 +113,99 @@ def test_is_contiguous_none():
             flag_gems.is_contiguous_memory_format(None, fmt),
             torch.ops.aten.is_contiguous.memory_format(None, fmt),
         )
+
+
+@pytest.mark.is_contiguous
+@pytest.mark.is_contiguous_memory_format
+def test_is_contiguous_stride_formulas():
+    cases = [
+        torch.empty_strided((2, 1, 4, 5), (20, 999, 5, 1), device=flag_gems.device),
+        torch.empty(
+            (2, 3, 4, 5),
+            device=flag_gems.device,
+            memory_format=torch.channels_last,
+        ),
+        torch.empty(
+            (2, 3, 4, 5, 6),
+            device=flag_gems.device,
+            memory_format=torch.channels_last_3d,
+        ),
+        torch.empty_strided((2, 0, 4, 5), (123, 77, 9, 2), device=flag_gems.device),
+    ]
+    formats = (
+        torch.contiguous_format,
+        torch.preserve_format,
+        torch.channels_last,
+        torch.channels_last_3d,
+        99,
+    )
+    for inp in cases:
+        _assert_bool(
+            flag_gems.is_contiguous(inp),
+            torch.ops.aten.is_contiguous.default(inp),
+        )
+        for fmt in formats:
+            _assert_bool(
+                flag_gems.is_contiguous_memory_format(inp, fmt),
+                torch.ops.aten.is_contiguous.memory_format(inp, fmt),
+            )
+
+
+@pytest.mark.is_contiguous
+@pytest.mark.parametrize(
+    "dtype", [torch.int32, torch.int64, torch.bool, torch.complex64]
+)
+def test_is_contiguous_dtype_independent(dtype):
+    inp = torch.empty((2, 3, 4), dtype=dtype, device=flag_gems.device).transpose(0, 2)
+    _assert_bool(
+        flag_gems.is_contiguous(inp), torch.ops.aten.is_contiguous.default(inp)
+    )
+
+
+@pytest.mark.is_contiguous
+@pytest.mark.is_contiguous_memory_format
+def test_is_contiguous_registration_limitation_and_log(caplog):
+    inp = torch.empty((2, 3, 4, 5), device=flag_gems.device)
+    expected_default = torch.ops.aten.is_contiguous.default(inp)
+    expected_channels_last = torch.ops.aten.is_contiguous.memory_format(
+        inp, torch.channels_last
+    )
+
+    logger_name = utils.gems_log_logger(flag_gems.is_contiguous)
+    with caplog.at_level("DEBUG", logger=logger_name):
+        direct_default = flag_gems.is_contiguous(inp)
+        direct_channels_last = flag_gems.is_contiguous_memory_format(
+            inp, torch.channels_last
+        )
+    _assert_bool(direct_default, expected_default)
+    _assert_bool(direct_channels_last, expected_channels_last)
+    assert (
+        f"{utils.gems_log_prefix(flag_gems.is_contiguous)} IS_CONTIGUOUS" in caplog.text
+    )
+    assert "GEMS IS_CONTIGUOUS_MEMORY_FORMAT" in caplog.text
+
+    # is_contiguous is manual_cpp_binding in native_functions.yaml. Pin the
+    # actual limitation: even after registering both entries exactly as the
+    # FlagGems registrar does, Tensor.is_contiguous() and both torch.ops packets
+    # stay on the hand-written C++ binding and do not enter the Python kernels.
+    caplog.clear()
+    lib = torch.library.Library("aten", "IMPL")
+    lib.impl("is_contiguous", flag_gems.is_contiguous, "CUDA")
+    lib.impl(
+        "is_contiguous.memory_format",
+        flag_gems.is_contiguous_memory_format,
+        "CUDA",
+    )
+    try:
+        with caplog.at_level("DEBUG", logger=logger_name):
+            packet_default = torch.ops.aten.is_contiguous.default(inp)
+            packet_channels_last = torch.ops.aten.is_contiguous.memory_format(
+                inp, torch.channels_last
+            )
+            method_default = inp.is_contiguous()
+        _assert_bool(packet_default, expected_default)
+        _assert_bool(packet_channels_last, expected_channels_last)
+        _assert_bool(method_default, expected_default)
+        assert "GEMS IS_CONTIGUOUS" not in caplog.text
+    finally:
+        lib._destroy()
